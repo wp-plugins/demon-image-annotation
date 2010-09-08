@@ -8,8 +8,7 @@ Version: 1.0
 Author URI: http://www.superwhite.cc
 */
 
-$action = isset($_REQUEST['action']) ? trim($_REQUEST['action']) : '';
-
+//header function
 function load_image_annotation_js() {
 	$plugindir = get_settings('home').'/wp-content/plugins/'.dirname(plugin_basename(__FILE__));
 	echo "<script src='http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js' type='text/javascript'></script>\n";
@@ -17,7 +16,6 @@ function load_image_annotation_js() {
 	echo "<script type='text/javascript' src='". $plugindir ."/js/jquery-ui-1.7.1.js'></script>\n";
 	echo "<link rel='stylesheet' href='$plugindir/css/annotation.css' type='text/css' />\n";
 	
-
 	function ae_detect_ie()
 	{
 		if (isset($_SERVER['HTTP_USER_AGENT']) && 
@@ -79,6 +77,7 @@ function load_image_annotation_js() {
 	<?php }
 }
 
+//comment function
 function getImgID($commentID) {	
 	global $wpdb;
 	$imgIDNow = $wpdb->get_var("SELECT note_img_ID FROM wp_imagenote WHERE note_comment_id = ".(int)$commentID);

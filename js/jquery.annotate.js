@@ -161,6 +161,9 @@
 			var author = $('#noteauthor').val();
 			var email = $('#noteemail').val();
 			
+			author = author == undefined ? "" : author
+			email = email == undefined ? "" : email
+			
 			var check = false;
 			
 			if(text != "") {

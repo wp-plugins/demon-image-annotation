@@ -1,6 +1,8 @@
 <?php
 require_once( "config.php" );
 
+$action = isset($_REQUEST['action']) ? trim($_REQUEST['action']) : '';
+
 if($action == "get") {
 	getResults();	
 } else if($action == "save") {
@@ -10,9 +12,11 @@ if($action == "get") {
 }
 
 function getSave() {
+	//save image note
 	$imgID = isset($_REQUEST['imgid']) ? trim($_REQUEST['imgid']) : '';	
 	$postID = isset($_REQUEST['postid']) ? trim($_REQUEST['postid']) : 0;	
 	
+	//get data from jQuery
 	$data = array(
 		$_GET["top"],
 		$_GET["left"],
@@ -22,41 +26,36 @@ function getSave() {
 		$_GET["id"],
 		$_GET["author"],
 		$_GET["email"],
-	);
+	);	
 	
-	//get data first
-	
-	
-	//delete old data
 	global $wpdb;
 	if($data[5] != "new") {
-		//id
-		//name
-		//author
+		//if image note is not new will delete the old image note
 		
-		//store comment id, author and email first
+		//find the old image note
 		$result = $wpdb->get_results("SELECT * FROM wp_imagenote WHERE note_img_ID='".$imgID."' and note_text_ID='".$data[5]."'");
-		foreach ($result as $topten) {
-			$comment_id = (int)$topten->note_comment_ID;
-			$comment_author = $topten->note_author;
-			$comment_email = $topten->note_email;
+		foreach ($result as $commentresult) {
+			$comment_id = (int)$commentresult->note_comment_ID; //comment ID
+			$comment_author = $commentresult->note_author; //comment Author
+			$comment_email = $commentresult->note_email; //comment Email
 		};
 		
+		//delete image note
 		$wpdb->query(" DELETE FROM wp_imagenote WHERE note_img_ID='".$imgID."' and note_text_ID='".$data[5]."'");
 		
-		//update comment
+		//update comment with latest image note
 		$wpdb->query("UPDATE wp_comments SET comment_content = '".$data[4]."' WHERE comment_ID = ".$comment_id);
 		
 	} else {
-		//save comment ----------------------------------------------------------------------------------------------
-		$comment_post_ID = $postID;
+		//if image note is new
 		
+		$comment_post_ID = $postID;		
 		$comment_author       = ( isset($_GET['author']) )  ? trim(strip_tags($_GET['author'])) : null;
 		$comment_author_email = ( isset($_GET['email']) )   ? trim($_GET['email']) : null;
 		$comment_author_url   = ( isset($_GET['url']) )     ? trim($_GET['url']) : null;
 		$comment_content      = $data[4];
 		
-		// If the user is logged in
+		//If the user is logged in, get author name and author email
 		$user = wp_get_current_user();
 		if ( $user->ID ) {
 			if ( empty( $user->display_name ) )
@@ -66,12 +65,13 @@ function getSave() {
 			$comment_author_url   = $wpdb->escape($user->user_url);
 			if ( current_user_can('unfiltered_html') ) {
 				if ( wp_create_nonce('unfiltered-html-comment_' . $comment_post_ID) != $_POST['_wp_unfiltered_html_comment'] ) {
-					kses_remove_filters(); // start with a clean slate
-					kses_init_filters(); // set up the filters
+					kses_remove_filters();
+					kses_init_filters();
 				}
 			}
 		}
 		
+		//insert image note into comment
 		$user_ID = $user->ID;
 		$comment_type = '';
 		$comment_parent = isset($_POST['comment_parent']) ? absint($_POST['comment_parent']) : 0;
@@ -79,6 +79,7 @@ function getSave() {
 		$comment_id = wp_new_comment( $commentdata );
 	}
 	
+	//insert new image note
 	$wpdb->query("INSERT INTO `wp_imagenote`
 										(
 											`note_img_ID`,
@@ -110,10 +111,12 @@ function getSave() {
 										)");
 
 	
+	//output JSON array
 	echo '{ "annotation_id": "id_'.md5($data[4]).'" }';
 }
 
 function getDelete() {
+	//delete image note
 	$qsType = isset($_REQUEST['imgid']) ? trim($_REQUEST['imgid']) : '';
 	$data = array(
 		$_GET["id"],
@@ -124,16 +127,21 @@ function getDelete() {
 }
 
 function getResults() {
-	createTable ();
+	//create table at fisrt
+	createTable();
+	
+	//get image note
 	$qsType = isset($_REQUEST['imgid']) ? trim($_REQUEST['imgid']) : '';
 	
 	global $wpdb;
 	$result = $wpdb->get_results("SELECT * FROM wp_imagenote WHERE note_img_ID = '".$qsType."' ");
 	
+	//output JSON array
 	echo "[";
 	foreach ($result as $topten) {		
 		$commentApprove = $wpdb->get_var("SELECT comment_approved FROM wp_comments WHERE comment_ID = ".(int)$topten->note_comment_ID);
 		
+		//the image note will auto delete if comment is deleted from admin, 
 		if($commentApprove == "") {
 			$wpdb->query("DELETE FROM wp_imagenote WHERE note_img_ID='".$qsType."' and note_text_ID='".$topten->note_text_ID."'");
 		}
@@ -142,13 +150,12 @@ function getResults() {
 			echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."<br /><span class='image-annotate-author'>by ".$topten->note_author."</span>\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true},";
 		}
 	};
-	
 	echo "]";
 }
 
+//create table function
 function createTable () {
    global $wpdb;
-
    $table_name = $wpdb->prefix . "wp_imagenote";
    if($wpdb->get_var("show tables like '$table_name'") != $table_name) {
       
@@ -171,23 +178,18 @@ function createTable () {
 
       require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
       dbDelta($sql);
-
-     // $rows_affected = $wpdb->insert( $table_name, array( 'time' => current_time('mysql'), 'name' => $welcome_name, 'text' => $welcome_text ) );
- 
-      //add_option("jal_db_version", $jal_db_version);
-
    }
 }
 
 function html2txt($text) {
-	$search = array ('@<script[^>]*?>.*?</script>@si',	// Strip out javascript
-			 '@<[\/\!]*?[^<>]*?>@si',		// Strip out HTML tags
-			 '@([\r\n])[\s]+@',			// Strip out white space
-			 '@&(quot|#34);@i',			// Replace HTML entities
+	$search = array ('@<script[^>]*?>.*?</script>@si',
+			 '@<[\/\!]*?[^<>]*?>@si',
+			 '@([\r\n])[\s]+@',
+			 '@&(quot|#34);@i',
 			 '@&(lt|#60);@i',
 			 '@&(gt|#62);@i',
 			 '@&(nbsp|#160);@i',
-			 '@&#(\d+);@e');			// evaluate as php
+			 '@&#(\d+);@e');		
 
 	$replace = array ('',
 			 '',
