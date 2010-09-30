@@ -415,10 +415,6 @@
         ///	<summary>
         ///		Highlights the annotation
         ///	</summary>
-        if(this.form.oldindex == undefined) {
-			this.form.oldindex = this.form.css("z-index");
-		}
-		this.form.css('z-index', 100);
         this.form.fadeIn(250);
         if (!this.editable) {
             this.area.addClass('image-annotate-area-hover');
@@ -432,7 +428,6 @@
         ///		Removes the highlight from the annotation.
         ///	</summary>      
         this.form.fadeOut(250);
-		this.form.css('z-index', this.form.oldindex);
         this.area.removeClass('image-annotate-area-hover');
         this.area.removeClass('image-annotate-area-editable-hover');
     };
