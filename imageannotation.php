@@ -32,7 +32,10 @@ function load_image_annotation_js() {
 			$("img").each(function() {
 				var idname = $(this).attr("id")
 				if(idname.substring(0,4) == "img-") {
-					source = $(this).attr('src');					
+					source = $(this).attr('src');
+					var addablecon = $(this).attr("addable")
+					addablecon = addablecon == undefined ? "true" : addablecon;
+					
 					$(this).wrap($('<div id=' + idname.substring(4,idname.length) + ' ></div>'));
 					
 					$('#' + idname).mouseover(function() {
@@ -43,7 +46,7 @@ function load_image_annotation_js() {
 							saveUrl: "<?php echo $plugindir; ?>/imageannotation-run.php",
 							deleteUrl: "<?php echo $plugindir; ?>/imageannotation-run.php",
 							editable: <?php get_currentuserinfo(); global $user_level; if ($user_level > 0) { ?>true<?php } else { ?>false<?php } ?>,
-							addable: true
+							addable: <?php get_currentuserinfo(); global $user_level; if ($user_level > 0) { ?>true<?php } else { ?> addablecon == "true" ? true : false <?php } ?>
 						});
 					});
 				}
