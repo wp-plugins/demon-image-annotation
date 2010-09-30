@@ -33,6 +33,9 @@ function load_image_annotation_js() {
 				var idname = $(this).attr("id")
 				if(idname.substring(0,4) == "img-") {
 					source = $(this).attr('src');
+					var addablecon = $(this).attr("addable")
+					addablecon = addablecon == undefined ? "true" : addablecon;
+					
 					$(this).wrap($('<div id=' + idname.substring(4,idname.length) + ' ></div>'));
 					
 					$('#' + idname).mouseover(function() {
@@ -43,7 +46,7 @@ function load_image_annotation_js() {
 							saveUrl: "<?php echo $plugindir; ?>/imageannotation-run.php",
 							deleteUrl: "<?php echo $plugindir; ?>/imageannotation-run.php",
 							editable: <?php get_currentuserinfo(); global $user_level; if ($user_level > 0) { ?>true<?php } else { ?>false<?php } ?>,
-							addable: true
+							addable: <?php get_currentuserinfo(); global $user_level; if ($user_level > 0) { ?>true<?php } else { ?> addablecon == "true" ? true : false <?php } ?>
 						});
 					});
 				}
@@ -78,17 +81,21 @@ function load_image_annotation_js() {
 }
 
 //comment function
-function getImgID($commentID) {	
+function getImgID() {
+	global $comment;
+	$commentID = $comment->comment_ID;
+	
 	global $wpdb;
 	$imgIDNow = $wpdb->get_var("SELECT note_img_ID FROM wp_imagenote WHERE note_comment_id = ".(int)$commentID);
 	
 	if($imgIDNow != "") {
 		$str = substr($imgIDNow, 4, strlen($imgIDNow));
-		return "<div id=\"comment-".$str."\"><a href='#".$str."'>noted on #".$imgIDNow."</a></div>";
+		echo "<div id=\"comment-".$str."\"><a href='#".$str."'>noted on #".$imgIDNow."</a></div>";
 	} else {
-		return "&nbsp;";	
+		echo "&nbsp;";	
 	}
 }
 
 add_action('wp_head', 'load_image_annotation_js');
+add_filter('Comments', 'getImgID');
 ?>
