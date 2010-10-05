@@ -123,7 +123,17 @@ function getDelete() {
 	);
 
 	global $wpdb;
+	
+	//find the comment ID frm wp_imagenote
+	$result = $wpdb->get_results("SELECT * FROM wp_imagenote WHERE note_img_ID='".$qsType."' and note_text_ID='".$data[0]."'");
+	foreach ($result as $commentresult) {
+		$comment_id = (int)$commentresult->note_comment_ID; //comment ID
+	};
+	
+	//delete note
 	$wpdb->query("DELETE FROM wp_imagenote WHERE note_img_ID='".$qsType."' and note_text_ID='".$data[0]."'");
+	//delete comment
+	$wpdb->query("DELETE FROM wp_comments WHERE comment_ID = ".$comment_id);
 }
 
 function getResults() {

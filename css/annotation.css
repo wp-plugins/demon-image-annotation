@@ -243,9 +243,15 @@
 	border: solid 5px #CCC;
 }
 
+.image-note-thumbnail:hover {
+	border: solid 5px #999;
+}
+
 .image-note-thumbnail img{
 	width: 85px;
     position: absolute;
     clip: rect(0 60px 60px 5px);
     left: -5px;
+	max-width:85px;
+	max-height:55px;
 }
