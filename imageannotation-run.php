@@ -44,11 +44,12 @@ function getSave() {
 		$wpdb->query(" DELETE FROM wp_imagenote WHERE note_img_ID='".$imgID."' and note_text_ID='".$data[5]."'");
 		
 		//update comment with latest image note
-		$wpdb->query("UPDATE wp_comments SET comment_content = '".$data[4]."' WHERE comment_ID = ".$comment_id);
+		if( (get_option('demon_image_annotation_comments') == '0') ) {
+			$wpdb->query("UPDATE wp_comments SET comment_content = '".$data[4]."' WHERE comment_ID = ".$comment_id);
+		}
 		
 	} else {
 		//if image note is new
-		
 		$comment_post_ID = $postID;		
 		$comment_author       = ( isset($_GET['author']) )  ? trim(strip_tags($_GET['author'])) : null;
 		$comment_author_email = ( isset($_GET['email']) )   ? trim($_GET['email']) : null;
@@ -71,12 +72,14 @@ function getSave() {
 			}
 		}
 		
-		//insert image note into comment
-		$user_ID = $user->ID;
-		$comment_type = '';
-		$comment_parent = isset($_POST['comment_parent']) ? absint($_POST['comment_parent']) : 0;
-		$commentdata = compact('comment_post_ID', 'comment_author', 'comment_author_email', 'comment_author_url', 'comment_content', 'comment_type', 'comment_parent', 'user_ID');
-		$comment_id = wp_new_comment( $commentdata );
+		if( (get_option('demon_image_annotation_comments') == '0') ) {
+			//insert image note into comment
+			$user_ID = $user->ID;
+			$comment_type = '';
+			$comment_parent = isset($_POST['comment_parent']) ? absint($_POST['comment_parent']) : 0;
+			$commentdata = compact('comment_post_ID', 'comment_author', 'comment_author_email', 'comment_author_url', 'comment_content', 'comment_type', 'comment_parent', 'user_ID');
+			$comment_id = wp_new_comment( $commentdata );
+		}
 	}
 	
 	//insert new image note
@@ -132,6 +135,7 @@ function getDelete() {
 	
 	//delete note
 	$wpdb->query("DELETE FROM wp_imagenote WHERE note_img_ID='".$qsType."' and note_text_ID='".$data[0]."'");
+	
 	//delete comment
 	$wpdb->query("DELETE FROM wp_comments WHERE comment_ID = ".$comment_id);
 }
@@ -156,8 +160,22 @@ function getResults() {
 			$wpdb->query("DELETE FROM wp_imagenote WHERE note_img_ID='".$qsType."' and note_text_ID='".$topten->note_text_ID."'");
 		}
 		
-		if($commentApprove == 1) {
-			echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."<br /><span class='image-annotate-author'>by ".$topten->note_author."</span>\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true},";
+		if( (get_option('demon_image_annotation_comments') == '0') ) {
+			if($commentApprove == 1) {
+				//add gravatar
+				if( (get_option('demon_image_annotation_gravatar') == '0') ) {
+					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."<br /><span class='image-annotate-author'>".get_avatar($topten->note_email, 20)." ".$topten->note_author."</span>\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true},";
+				} else {
+					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."<br /><span class='image-annotate-author'>".$topten->note_author."</span>\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true},";		
+				}
+			}
+		} else {
+			//add gravatar
+			if( (get_option('demon_image_annotation_gravatar') == '0') ) {
+				echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."<br /><span class='image-annotate-author'>".get_avatar($topten->note_email, 20)." ".$topten->note_author."</span>\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true},";
+			} else {
+				echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."<br /><span class='image-annotate-author'>".$topten->note_author."</span>\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true},";		
+			}			
 		}
 	};
 	echo "]";

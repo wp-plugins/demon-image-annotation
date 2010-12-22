@@ -4,16 +4,17 @@ Plugin Name: Demon Image Annotations
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 Description: 'Allows you to add textual annotations to images by select a region of the image and then attach a textual description, the concept of annotating images with user comments.'
 Author: Demon
-Version: 1.2
+Version: 2.0
 Author URI: http://www.superwhite.cc
 */
 
-//header function
+//*************** Header function ***************
 function load_image_annotation_js() {
 	$plugindir = get_settings('home').'/wp-content/plugins/'.dirname(plugin_basename(__FILE__));
-	echo "<script src='http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js' type='text/javascript'></script>\n";
+	echo "<script src='http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js' type='text/javascript'></script>\n";
 	echo "<script type='text/javascript' src='". $plugindir ."/js/jquery.annotate.js'></script>\n";
 	echo "<script type='text/javascript' src='". $plugindir ."/js/jquery-ui-1.7.1.js'></script>\n";
+	echo "<script type='text/javascript' src='". $plugindir ."/js/jquery.md5.js'></script>\n";
 	echo "<link rel='stylesheet' href='$plugindir/css/annotation.css' type='text/css' />\n";
 	
 	function ae_detect_ie()
@@ -23,64 +24,126 @@ function load_image_annotation_js() {
 			return true;
 		else
 			return false;
-	}  
+	}
 	
-	if (is_single()) { ?>
-		
+	if (is_single()) {
+		$plugin = 1;
+	} else if(is_archive()){
+		if( (get_option('demon_image_annotation_archive') == '1') ) {
+			$plugin = 2;
+		} else {
+			$plugin = 0;
+		}
+	} else if(is_home()){
+		if( (get_option('demon_image_annotation_homepage') == '1') ) {
+			$plugin = 2;
+		} else {
+			$plugin = 0;
+		}	
+	}
+	
+	?>
     <script language="javascript">
-	$(document).ready(function(){
-			$("img").each(function() {
-				var idname = $(this).attr("id")
-				if(idname.substring(0,4) == "img-") {
-					source = $(this).attr('src');
-					var addablecon = $(this).attr("addable")
-					addablecon = addablecon == undefined ? "true" : addablecon;
+	<?php if( (get_option('demon_image_annotation_display') == '0' && $plugin != 0) ) { ?>
+		$(document).ready(function(){
+				//image annotaion
+				$("<?php echo get_option('demon_image_annotation_postcontainer'); ?> img").each(function() {						
+						var idname = $(this).attr("id")
+						var source = $(this).attr('src');
+						
+						if(idname.substring(4,idname.length) != 'exclude') {
+							//check if image annotation addable attribute exist
+							var addablecon = $(this).attr("addable")
+							addablecon = addablecon == undefined ? "true" : addablecon;
+							
+							//disable if image annotation addable for admin only
+							<?php if (get_option('demon_image_annotation_admin') == '0') { ?>
+								addablecon = false;
+							<?php } ?>
+							
+							//enable addable and editable only in single page
+							var addablepage = true;
+							var editable = true;
+							
+							//disable addable button if not in single page
+							<?php if ($plugin != 1) { ?>
+								addablepage = false;
+								addablecon = false;
+								editable = false
+							<?php  } ?>
+							
+							//find image link if exist
+							var imagelink = $(this).parent("a").attr('href');
+							var imgid = ""
+								
+							//auto insert image id attribute
+							<?php if( (get_option('demon_image_annotation_autoimageid') == '0') ) { ?>						
+								imgid = $.md5(source);
+								imgid = "img-" + imgid.substring(0,10)
+							<?php }; ?>
+							
+							//replace if image id attribute exist
+							if(idname.substring(0,4) == "img-") {
+								imgid = idname;
+							}
+							
+							if(imgid.substring(0,4) == "img-") {
+								//deactive the lnik if exist
+								$(this).parent("a").removeAttr("href");
+								
+								$(this).attr("id", imgid);
+								$(this).wrap($('<div id=' + imgid.substring(4,imgid.length) + ' ></div>'));
+								var imagetag = imagelink != undefined ? ' | <a href="' + imagelink + '" target="blank">Flickr</a>' : '';
+								$(this).before('<div class="image-note-desc">Mouseover to load notes.' + imagetag + '</div>');
+							
+								$(this).mouseover(function() {
+									$(this).annotateImage({
+										getPostID: <?php global $wp_query; $thePostID = $wp_query->post->ID; echo $thePostID; ?>,
+										getImgID: imgid,
+										getUrl: "<?php echo $plugindir; ?>/imageannotation-run.php",
+										saveUrl: "<?php echo $plugindir; ?>/imageannotation-run.php",
+										deleteUrl: "<?php echo $plugindir; ?>/imageannotation-run.php",
+										editable: <?php get_currentuserinfo(); global $user_level; if ($user_level > 0) { ?>editable<?php } else { ?> false <?php } ?>,
+										addable: <?php get_currentuserinfo(); global $user_level; if ($user_level > 0) { ?>addablepage<?php } else { ?> addablecon == "true" ? true : false <?php } ?>
+									});
+								});
+							}
+						}
 					
-					$(this).wrap($('<div id=' + idname.substring(4,idname.length) + ' ></div>'));
-					
-					$('#' + idname).mouseover(function() {
-						$(this).annotateImage({
-							getPostID: <?php global $wp_query; $thePostID = $wp_query->post->ID; echo $thePostID; ?>,
-							getImgID: idname,
-							getUrl: "<?php echo $plugindir; ?>/imageannotation-run.php",
-							saveUrl: "<?php echo $plugindir; ?>/imageannotation-run.php",
-							deleteUrl: "<?php echo $plugindir; ?>/imageannotation-run.php",
-							editable: <?php get_currentuserinfo(); global $user_level; if ($user_level > 0) { ?>true<?php } else { ?>false<?php } ?>,
-							addable: <?php get_currentuserinfo(); global $user_level; if ($user_level > 0) { ?>true<?php } else { ?> addablecon == "true" ? true : false <?php } ?>
-						});
-					});
+				});
+				
+				//comment thumbnails
+				$('div').each(function() {
+					var divid = $(this).attr("id");
+					if(divid.substring(0,8) == "comment-") {
+						var getimgsrc = imageSource(divid.substring(8,divid.length));
+						if(getimgsrc != "") {
+							$(this).remove("noted");
+							$(this).html('<div class="image-note-thumbnail"><a href="#' + divid.substring(8,divid.length) + '"><img src="' + getimgsrc + '" /></a></div>');
+						}
+					}
+				});
+		});
+		
+		//get image source from post for thumbnail
+		function imageSource(id) {
+			var idreturn = "";
+			$('<?php echo get_option('demon_image_annotation_postcontainer'); ?> img').each(function() {
+				var imgid = $(this).attr("id");
+				if(imgid == "img-" + id) {
+					idreturn = $(this).attr("src");
 				}
 			});
 			
-			$('div').each(function() {
-				var divid = $(this).attr("id");
-				if(divid.substring(0,8) == "comment-") {
-					var getimgsrc = imageSource(divid.substring(8,divid.length));
-					if(getimgsrc != "") {
-						$(this).remove("noted");
-						$(this).html('<div class="image-note-thumbnail"><a href="#' + divid.substring(8,divid.length) + '"><img src="' + getimgsrc + '" /></a></div>');
-					}
-				}
-			});
-	});
-	
-	function imageSource(id) {
-		var idreturn = "";
-		$('img').each(function() {
-			var imgid = $(this).attr("id");
-			if(imgid == "img-" + id) {
-				idreturn = $(this).attr("src");
-			}
-		});
-		
-		return idreturn;
-	}
+			return idreturn;
+		}
+	<?php } ?>
 	
 	</script>
-	<?php }
+    <?php
 }
 
-//comment function
+//*************** Comment function ***************
 function getImgID() {
 	global $comment;
 	$commentID = $comment->comment_ID;
@@ -96,6 +159,30 @@ function getImgID() {
 	}
 }
 
+function guan_getImgID_inserter($comment_ID = 0){
+	getImgID();
+	$guan_comment_content = get_comment_text();
+	return $guan_comment_content;
+}
+
+if( (get_option('demon_image_annotation_display') == '0') ) {
+	if( (get_option('demon_image_annotation_thumbnail') == '0') ) {
+		add_filter('comment_text', 'guan_getImgID_inserter', 10, 4);
+	}
+}
+
 add_action('wp_head', 'load_image_annotation_js');
-add_filter('Comments', 'getImgID');
+
+//*************** Admin function ***************
+function demonimageannotation_admin() {
+	include('imageannotation-admin.php');
+}
+
+function demonimageannotation_admin_actions() {
+    add_options_page("demon-Image-Annotation", "demon-Image-Annotation", 1, "demon-Image-Annotation", "demonimageannotation_admin");
+}
+
+if ( is_admin() ){ // admin actions
+  	add_action('admin_menu', 'demonimageannotation_admin_actions');
+}
 ?>
