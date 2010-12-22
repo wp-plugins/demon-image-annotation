@@ -1,40 +1,58 @@
-.image-annotate-add {
-    background: #fff url(../images/asterisk_yellow.png) no-repeat 3px 3px;
-    border: solid 1px #ccc !important;
-    color: #000 !important;
-    cursor: pointer;
-    display: block;
-    float: left;
-    font-family: Verdana, Sans-Serif;
-    font-size: 12px;    
-    height: 18px;
-    line-height: 18px;    
-    padding: 2px 0 2px 24px;
-    margin: 0px 0px 0px;
-    width: 64px;
-    text-decoration: none;
-}
-.image-annotate-add:hover {
-    background-color: #eee;
+/*image note desc*/
+.image-note-desc{
+	font-family: Verdana, Sans-Serif;
+	font-size:11px;
+	color:#999;
+	text-align:left;
+	padding-left:12px;
 }
 
+/*image add a note button*/
+.image-annotate-add {
+	background: url(../images/asterisk_yellow.png) no-repeat 3px 3px;
+    border: solid 0px #ccc !important;
+    color: #999 !important;
+    cursor: pointer;
+    display: block;
+    float: right;
+    font-family: Verdana, Sans-Serif;
+    font-size: 11px;    
+    height: 18px;
+    line-height: 18px;    
+    padding: 2px 0px 0px 20px;
+    margin: -20px 10px 0px;
+    text-decoration: none;
+}
+
+.image-annotate-add:hover {
+    color: #999;
+}
+
+/*image note loader*/
 .image-annotate-loading {
 	background: url(../images/loading.gif) no-repeat;
 }
 
+/*image note author*/
 .image-annotate-author {
-	font-size:11px;
+	font-size:13px;
 	font-style:italic;
 	color:#CCC;
+	margin-top:10px;
 }
 
+/*image note canvas*/
 .image-annotate-canvas {
-	border: solid 1px #ccc;
+	border:5px solid #000000; text-align: left;
     background-position: left top;
     background-repeat: no-repeat;
     display: block;
-    margin:0;
     position: relative;
+	
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 }
 .image-annotate-view {
     display: none;
@@ -49,26 +67,26 @@
     display: block;
 }
 .image-annotate-area-hover div {
-    border-color: yellow !important;
+    border-color: #28B6F1 !important;
 }
 .image-annotate-area-editable {
     cursor: pointer;
 }
 .image-annotate-area-editable-hover div {
-    border-color: #00AD00 !important;
+    border-color: #28B6F1 !important;
 }
+
 .image-annotate-note {
-    background: #000 none repeat scroll 0 0;
-    border: solid 1px #FFF;
+    background: none repeat scroll 0 0;
+	background-image:url(../images/black.png);
+    border: solid 1px #333;
     color: #FFF;
     display: none;
-    font-family:Verdana, Geneva, sans-serif;
+      font-family: Verdana, Sans-Serif;
     font-size: 12px;
     max-width: 200px;
     padding: 3px 7px;
     position: absolute;
-	opacity:0.7;
-	filter:alpha(opacity=70);
 }
 .image-annotate-note .actions {
     display: block;
@@ -77,15 +95,15 @@
 .image-annotate-edit {
     display: none;
 }
+
 #image-annotate-edit-form {
-	font-family: Arial, Helvetica, sans-serif;
-	font-size:10px;
-    background: #FFF none repeat scroll 0 0;
-    border: 1px solid #000000;
-    height: 150px;
+	 background: #F7F6F4 none repeat scroll 0 0;
+    border: 1px solid #E2E2E2;
+    height: 140px;
     padding: 7px;
     position: absolute;
-    width: 250px;
+    width: 260px;
+	margin-top:10px;
 }
 #image-annotate-edit-form form {
     clear: right;
@@ -97,11 +115,10 @@
     margin: 0;
 }
 #image-annotate-edit-form input.form-text, #image-annotate-edit-form #edit-comment-wrapper textarea {
-	width: 90%;
+	
 }
 
 #image-annotate-edit-form input {
-	font-family: Arial, Helvetica, sans-serif;
 	 font-size: 11px;
 	 margin:1px;
 	 width:75%;
@@ -109,7 +126,7 @@
 
 #image-annotate-edit-form textarea {
     height: 50px;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Verdana, Sans-Serif;
     font-size: 11px;    
     width: 240px;
 }
@@ -132,7 +149,7 @@
     display: block;
     float: left;    
     font-family: Verdana, Sans-Serif;
-    font-size: 12px;        
+    font-size: 11px;        
     height: 18px;
     line-height: 18px;
     padding: 2px 0 2px 24px;
@@ -143,7 +160,7 @@
     background-color: #eee;
 }
 .image-annotate-edit-area {
-    border: 1px solid black;
+    border: 1px solid #FC0;
     cursor: move;
     display: block;
     height: 60px;
@@ -157,6 +174,8 @@
 .image-annotate-edit-area .ui-resizable-handle {
     opacity: 0.8;
 }
+
+/*image note button*/
 .image-annotate-edit-ok {
     background-image: url(../images/accept.png);
 }
@@ -166,6 +185,8 @@
 .image-annotate-edit-close {
     background-image: url(../images/cross.png);
 }
+
+/*image note resize*/
 .ui-resizable {
     position: relative;
 }
@@ -235,6 +256,7 @@
     top: -5px;
 }
 
+/*image note comments thumbnail*/
 .image-note-thumbnail {
 	margin: 0 10px 0 0;
 	position: relative;
