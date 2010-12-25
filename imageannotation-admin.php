@@ -208,26 +208,6 @@ Author URI: http://www.mis-algoritmos.com
             
             <tr>
                 <th>
-                    <label><?php _e("include post id in image id attribute : " ); ?></label>
-                </th>
-              <td>
-                  <?php
-                    $sndisplaymode = array( 0 => __( 'Enable' ), 1 => __( 'Disable' ) );	
-                    foreach ( $sndisplaymode as $key => $value) {
-                        $selected = $dia_postid == $key ? 'checked="checked"' : '';
-                        echo "<label><input type='radio' name='dia_postid' value='" . esc_attr($key) . "' $selected/> $value</label>";
-                    } ?>
-                    <br />
-                    <em>Include post id in every auto insert images id, this is to avoid duplicate comments when you had same images in different post.<br />
-                    Enable this option will not load old images note since the images id is different.<br /><br /></em>
-                    
-                    <strong>Example (img-postid-4774005463)</strong><br />
-                    <code>&lt;img id="img-12-4774005463" src="http://farm5.static.flickr.com/4121/4774005463_3837b6de44_o.jpg" /&gt;</code><br />
-              </td>
-            </tr>
-            
-            <tr>
-                <th>
                     <label><?php _e("admin only : " ); ?></label>
                 </th>
               <td>
