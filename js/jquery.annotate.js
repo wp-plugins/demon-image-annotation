@@ -366,7 +366,7 @@
         image.canvas.children('.image-annotate-view').prepend(this.area);
 
         // Add the note
-		this.form = $('<div class="image-annotate-note">' + note.text + '</div>');
+		this.form = $('<div class="image-annotate-note">' + note.author + note.text + '</div>');
         this.form.hide();
         image.canvas.children('.image-annotate-view').append(this.form);
         this.form.children('span.actions').hide();

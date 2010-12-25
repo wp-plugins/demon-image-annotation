@@ -153,28 +153,27 @@ function getResults() {
 	//output JSON array
 	echo "[";
 	foreach ($result as $topten) {		
-		$commentApprove = $wpdb->get_var("SELECT comment_approved FROM wp_comments WHERE comment_ID = ".(int)$topten->note_comment_ID);
-		
-		//the image note will auto delete if comment is deleted from admin, 
-		if($commentApprove == "") {
-			$wpdb->query("DELETE FROM wp_imagenote WHERE note_img_ID='".$qsType."' and note_text_ID='".$topten->note_text_ID."'");
-		}
-		
 		if( (get_option('demon_image_annotation_comments') == '0') ) {
+			$commentApprove = $wpdb->get_var("SELECT comment_approved FROM wp_comments WHERE comment_ID = ".(int)$topten->note_comment_ID);
+			//the image note will auto delete if comment is deleted from admin, 
+			if($commentApprove == "") {
+				$wpdb->query("DELETE FROM wp_imagenote WHERE note_img_ID='".$qsType."' and note_text_ID='".$topten->note_text_ID."'");
+			}
+			
 			if($commentApprove == 1) {
 				//add gravatar
 				if( (get_option('demon_image_annotation_gravatar') == '0') ) {
-					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."<br /><span class='image-annotate-author'>".get_avatar($topten->note_email, 20)." ".$topten->note_author."</span>\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true},";
+					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".get_avatar($topten->note_email, 20)." ".$topten->note_author."</div>\"},";
 				} else {
-					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."<br /><span class='image-annotate-author'>".$topten->note_author."</span>\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true},";		
+					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".$topten->note_author."</div>\"},";
 				}
 			}
 		} else {
 			//add gravatar
 			if( (get_option('demon_image_annotation_gravatar') == '0') ) {
-				echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."<br /><span class='image-annotate-author'>".get_avatar($topten->note_email, 20)." ".$topten->note_author."</span>\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true},";
+				echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".get_avatar($topten->note_email, 20)." ".$topten->note_author."</div>\"},";
 			} else {
-				echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."<br /><span class='image-annotate-author'>".$topten->note_author."</span>\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true},";		
+				echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".$topten->note_author."</div>\"},";
 			}			
 		}
 	};
