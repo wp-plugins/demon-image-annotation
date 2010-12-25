@@ -5,6 +5,7 @@
 	color:#999;
 	text-align:left;
 	padding-left:12px;
+	text-decoration:none;
 }
 
 /*image add a note button*/
@@ -35,10 +36,15 @@
 
 /*image note author*/
 .image-annotate-author {
-	font-size:13px;
+	font-size:11px;
 	font-style:italic;
 	color:#CCC;
-	margin-top:10px;
+	margin-top:5px;
+	margin-bottom:3px;
+}
+
+.image-annotate-author img {
+	border: 0px;
 }
 
 /*image note canvas*/
@@ -61,19 +67,29 @@
 .image-annotate-area {
     border: 1px solid #000000;
     position: absolute;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
 }
 .image-annotate-area div {
     border: 1px solid #FFFFFF;
     display: block;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
 }
 .image-annotate-area-hover div {
     border-color: #28B6F1 !important;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
 }
 .image-annotate-area-editable {
     cursor: pointer;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
 }
 .image-annotate-area-editable-hover div {
     border-color: #28B6F1 !important;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
 }
 
 .image-annotate-note {
@@ -82,11 +98,13 @@
     border: solid 1px #333;
     color: #FFF;
     display: none;
-      font-family: Verdana, Sans-Serif;
-    font-size: 12px;
+    font-family: Verdana, Sans-Serif;
+    font-size: 11px;
     max-width: 200px;
-    padding: 3px 7px;
+    padding: 6px 10px;
     position: absolute;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
 }
 .image-annotate-note .actions {
     display: block;
@@ -97,13 +115,16 @@
 }
 
 #image-annotate-edit-form {
-	 background: #F7F6F4 none repeat scroll 0 0;
+	background: #F7F6F4 none repeat scroll 0 0;
     border: 1px solid #E2E2E2;
+	font-size:10px;
     height: 140px;
     padding: 7px;
     position: absolute;
     width: 260px;
 	margin-top:10px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
 }
 #image-annotate-edit-form form {
     clear: right;
@@ -170,6 +191,8 @@
     position: absolute;
     top: 10px;
     width: 60px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
 }
 .image-annotate-edit-area .ui-resizable-handle {
     opacity: 0.8;
@@ -262,11 +285,15 @@
 	position: relative;
 	width: 55px;
 	height: 55px;
-	border: solid 5px #CCC;
+	border: solid 3px #CCC;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
 }
 
 .image-note-thumbnail:hover {
-	border: solid 5px #999;
+	border: solid 3px #999;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
 }
 
 .image-note-thumbnail img{
@@ -276,4 +303,6 @@
     left: -5px;
 	max-width:85px;
 	max-height:55px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
 }
