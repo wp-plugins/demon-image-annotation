@@ -103,8 +103,16 @@ function load_image_annotation_js() {
 								
 								var imagenotetag = imagenotedesc != '' ? imagenotedesc : imagenotedesc;
 								var imagelinktag = imagelink != undefined ? '<a href="' + imagelink + '" target="blank">' + imagelinkdesc + '</a>' : '';
-								var divider = imagelink != undefined ? ' | ' : '';
-								var divider = imagenotetag == '' ? '' : ' | ';
+								var divider;
+								
+								if(imagenotedesc != '') {
+									divider = imagelink != undefined ? ' | ' : '';
+								} else if (imagelink != undefined) {
+									divider = imagenotetag == '' ? '' : ' | ';
+								} else {
+									divider = '';
+								}
+								
 								$(this).before('<div class="image-note-desc">'+ imagenotetag + divider + imagelinktag + '</div>');
 							
 								$(this).mouseover(function() {
