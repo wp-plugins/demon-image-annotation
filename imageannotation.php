@@ -4,7 +4,7 @@ Plugin Name: Demon Image Annotations
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 Description: 'Allows you to add textual annotations to images by select a region of the image and then attach a textual description, the concept of annotating images with user comments.'
 Author: Demon
-Version: 2.1
+Version: 2.0
 Author URI: http://www.superwhite.cc
 */
 
@@ -77,14 +77,9 @@ function load_image_annotation_js() {
 							var imgid = ""
 								
 							//auto insert image id attribute
-							<?php if( (get_option('demon_image_annotation_autoimageid') == '0') ) { ?>
+							<?php if( (get_option('demon_image_annotation_autoimageid') == '0') ) { ?>						
 								imgid = $.md5(source);
-								<?php if( (get_option('demon_image_annotation_autoimageid') == '0') ) { ?>
-									var postid = <?php global $wp_query; $thePostID = $wp_query->post->ID; echo $thePostID; ?>;
-									imgid = "img-" + postid + "-" + imgid.substring(0,10);
-								<?php } else { ?>
-									imgid = "img-" + imgid.substring(0,10);
-								<?php }; ?>
+								imgid = "img-" + imgid.substring(0,10)
 							<?php }; ?>
 							
 							//replace if image id attribute exist
@@ -98,22 +93,8 @@ function load_image_annotation_js() {
 								
 								$(this).attr("id", imgid);
 								$(this).wrap($('<div id=' + imgid.substring(4,imgid.length) + ' ></div>'));
-								var imagenotedesc = "<?php echo get_option('demon_image_annotation_mouseoverdesc'); ?>";
-								var imagelinkdesc = "<?php echo get_option('demon_image_annotation_linkdesc'); ?>";
-								
-								var imagenotetag = imagenotedesc != '' ? imagenotedesc : imagenotedesc;
-								var imagelinktag = imagelink != undefined ? '<a href="' + imagelink + '" target="blank">' + imagelinkdesc + '</a>' : '';
-								var divider;
-								
-								if(imagenotedesc != '') {
-									divider = imagelink != undefined ? ' | ' : '';
-								} else if (imagelink != undefined) {
-									divider = imagenotetag == '' ? '' : ' | ';
-								} else {
-									divider = '';
-								}
-								
-								$(this).before('<div class="image-note-desc">'+ imagenotetag + divider + imagelinktag + '</div>');
+								var imagetag = imagelink != undefined ? ' | <a href="' + imagelink + '" target="blank">Flickr</a>' : '';
+								$(this).before('<div class="image-note-desc">Mouseover to load notes.' + imagetag + '</div>');
 							
 								$(this).mouseover(function() {
 									$(this).annotateImage({
