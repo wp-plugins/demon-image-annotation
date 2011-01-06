@@ -1,17 +1,4 @@
 <style>
-/*
-Plugin Name: WP-Digg Style Paginator
-Plugin URI: http://www.mis-algoritmos.com/2007/09/09/wp-digg-style-pagination-plugin-v-10/
-Author: Victor De la Rocha
-Author URI: http://www.mis-algoritmos.com
-*/
-/*
-Plugin Name: WP-Digg Style Paginator
-Plugin URI: http://www.mis-algoritmos.com/2007/09/09/wp-digg-style-pagination-plugin-v-10/
-Author: Victor De la Rocha
-Author URI: http://www.mis-algoritmos.com
-*/
-/*CSS Yahoo new version style pagination*/
 	div.pagination {
 		padding: 3px;
 		margin: 3px;
@@ -106,6 +93,10 @@ Author URI: http://www.mis-algoritmos.com
 			$dia_gravatar = $_POST['dia_gravatar'];
 			update_option('demon_image_annotation_gravatar', $dia_gravatar);
 			
+			//image note gravatar
+			$dia_gravatardefault = $_POST['dia_gravatardefault'];
+			update_option('demon_image_annotation_gravatar_deafult', $dia_gravatardefault);
+			
 			//wordpress comment
 			$dia_comments = $_POST['dia_comments'];
 			update_option('demon_image_annotation_comments', $dia_comments);
@@ -136,6 +127,7 @@ Author URI: http://www.mis-algoritmos.com
 			$dia_admin = get_option('demon_image_annotation_admin');
 			$dia_thumbnail = get_option('demon_image_annotation_thumbnail');
 			$dia_gravatar = get_option('demon_image_annotation_gravatar');
+			$dia_gravatardefault = get_option('demon_image_annotation_gravatar_deafult');
 			$dia_everypage = get_option('demon_image_annotation_everypage');
 			$dia_comments = get_option('demon_image_annotation_comments');
 			$dia_homepage = get_option('demon_image_annotation_homepage');
@@ -254,7 +246,8 @@ Author URI: http://www.mis-algoritmos.com
                         echo "<label><input type='radio' name='dia_gravatar' value='" . esc_attr($key) . "' $selected/> $value</label>";
                     } ?>
                     <br />
-                    <em>Enable or disable to show gravatar in image note.</em>
+                    <em>Enable or disable to show gravatar in image note.</em><br />
+                    Default gravatar : <?php echo get_bloginfo('template_url'); ?><input type="text" name="dia_gravatardefault" value="<?php echo $dia_gravatardefault ?>" size="20"><?php _e(" ex: /images/default.png" ); ?><br />
               </td>
             </tr>
             <tr>
@@ -474,21 +467,55 @@ Author URI: http://www.mis-algoritmos.com
         if (isset($_POST['update_comment_status'])) {
 			if (!wp_verify_nonce($_POST['_wpnonce'], 'imagenotesaction')) die('Update comment security violated');	
             if($_POST['update_comment_status'] == "yes") {
-					//find comment id and comment text
-					$query = "SELECT * from wp_imagenote where note_ID in (" .$_POST['note_id']. ")";
-					$result = $wpdb->get_results($query);
-					foreach ($result as $r) {
-						$comment_id = $r->note_comment_ID;
-						$content = $r->note_text;
-						
+					if( (get_option('demon_image_annotation_comments') == '0') ) {
+						//find comment id and comment text
+						$query = "SELECT * from wp_imagenote where note_ID in (" .$_POST['note_id']. ")";
+						$result = $wpdb->get_results($query);
+						foreach ($result as $r) {
+							$comment_id = $r->note_comment_ID;
+							$content = $r->note_text;
+							
+							if($_POST['note_comment_status'] == "1") {
+								$query = "UPDATE `wp_imagenote` SET
+										`note_approved` = '1'
+										where note_ID = '".$_POST['note_id']."'		
+									";
+									$wpdb->query($query);
+									echo $query;
+								$wpdb->query("UPDATE wp_comments SET comment_approved = '1' WHERE comment_ID = ".$comment_id." and comment_content = '".$content."'");
+								echo "UPDATE wp_comments SET comment_approved = '1' WHERE comment_ID = ".$comment_id." and comment_content = '".$content."'";
+								?><div class="updated"><p><strong><?php _e('Comment approved.' ); ?></strong></p></div>
+								<?php 
+							} else {
+								$query = "UPDATE `wp_imagenote` SET
+										`note_approved` = '0'
+										where note_ID = '".$_POST['note_id']."'		
+									";
+									$wpdb->query($query);
+									echo $query;
+								$wpdb->query("UPDATE wp_comments SET comment_approved = '0' WHERE comment_ID = ".$comment_id." and comment_content = '".$content."'");
+								echo "UPDATE wp_comments SET comment_approved = '0' WHERE comment_ID = ".$comment_id." and comment_content = '".$content."'";
+								?><div class="updated"><p><strong><?php _e('Comment unapprove.' ); ?></strong></p></div>
+								<?php 
+							}
+						}
+					} else {
 						if($_POST['note_comment_status'] == "1") {
-							$wpdb->query("UPDATE wp_comments SET comment_approved = '1' WHERE comment_ID = ".$comment_id." and comment_content = '".$content."'");
-							?><div class="updated"><p><strong><?php _e('Comment approved.' ); ?></strong></p></div>
-            				<?php 
+							$query = "UPDATE `wp_imagenote` SET
+										`note_approved` = '1'
+										where note_ID = '".$_POST['note_id']."'		
+									";
+									$wpdb->query($query);
+							?><div class="updated"><p><strong><?php _e('Note Comment approved.' ); ?></strong></p></div>
+							<?php 
 						} else {
-							$wpdb->query("UPDATE wp_comments SET comment_approved = '0' WHERE comment_ID = ".$comment_id." and comment_content = '".$content."'");
-							?><div class="updated"><p><strong><?php _e('Comment unapprove.' ); ?></strong></p></div>
-            				<?php 
+							$query = "UPDATE `wp_imagenote` SET
+										`note_approved` = '0'
+										where note_ID = '".$_POST['note_id']."'		
+									";
+									$wpdb->query($query);
+							?><div class="updated"><p><strong><?php _e('Note Comment unapprove.' ); ?></strong></p></div>
+							<?php 
 						}
 					}
            			?>
@@ -621,6 +648,12 @@ Author URI: http://www.mis-algoritmos.com
                         echo '<td>';
 						if( (get_option('demon_image_annotation_comments') == '0') ) {
 							if($comment_approved == 1) {
+								echo '<input type="button" name="unapprove" value="unapprove" onClick="javascript: updateComment('.$r->note_ID.','. $r->note_comment_ID . ',0);" />';
+							} else {
+								echo '<input type="button" name="approve" value="approve" onClick="javascript: updateComment('.$r->note_ID.','. $r->note_comment_ID . ',1);" />';
+							}
+						} else {
+							if($r->note_approved == 1) {
 								echo '<input type="button" name="unapprove" value="unapprove" onClick="javascript: updateComment('.$r->note_ID.','. $r->note_comment_ID . ',0);" />';
 							} else {
 								echo '<input type="button" name="approve" value="approve" onClick="javascript: updateComment('.$r->note_ID.','. $r->note_comment_ID . ',1);" />';

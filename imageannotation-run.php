@@ -96,6 +96,7 @@ function getSave() {
 											`note_text`,
 											`note_text_id`,
 											`note_editable`,
+											`note_approved`,
 											`note_date`
 										)
 										VALUES (
@@ -110,6 +111,7 @@ function getSave() {
 										'".addslashes($data[4])."',
 										'".addslashes("id_".md5($data[4]))."',
 										1,
+										0,
 										now()
 										)");
 
@@ -160,21 +162,31 @@ function getResults() {
 				$wpdb->query("DELETE FROM wp_imagenote WHERE note_img_ID='".$qsType."' and note_text_ID='".$topten->note_text_ID."'");
 			}
 			
+			if(get_option('demon_image_annotation_gravatar_deafult') != '') {
+				$defaultgravatar = get_bloginfo('template_url').get_option('demon_image_annotation_gravatar_deafult');
+			} else {
+				$defaultgravatar = '';
+			}
+			
 			if($commentApprove == 1) {
 				//add gravatar
+				$notetext = txt2html($topten->note_text);
 				if( (get_option('demon_image_annotation_gravatar') == '0') ) {
-					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".get_avatar($topten->note_email, 20)." ".$topten->note_author."</div>\"},";
+					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".get_avatar($topten->note_email, 20, $defaultgravatar)." ".$topten->note_author."</div>\"},";
 				} else {
-					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".$topten->note_author."</div>\"},";
+					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".$topten->note_author."</div>\"},";
 				}
 			}
 		} else {
-			//add gravatar
-			if( (get_option('demon_image_annotation_gravatar') == '0') ) {
-				echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".get_avatar($topten->note_email, 20)." ".$topten->note_author."</div>\"},";
-			} else {
-				echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$topten->note_text."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".$topten->note_author."</div>\"},";
-			}			
+			if($topten->note_approved == 1) {
+				//add gravatar
+				$notetext = txt2html($topten->note_text);
+				if( (get_option('demon_image_annotation_gravatar') == '0') ) {
+					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".get_avatar($topten->note_email, 20, $defaultgravatar)." ".$topten->note_author."</div>\"},";
+				} else {
+					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".$topten->note_author."</div>\"},";
+				}	
+			}
 		}
 	};
 	echo "]";
@@ -207,7 +219,10 @@ function createTable () {
       dbDelta($sql);
    } else {
 	  $sql = "ALTER TABLE `wp_imagenote` modify `note_img_ID` VARCHAR(30);";
-	  $wpdb->query($sql);   
+	  $wpdb->query($sql);
+	  
+	  $sql = "ALTER TABLE `wp_imagenote` ADD `note_approved` VARCHAR(20) DEFAULT '1' AFTER `note_editable`;";
+	  $wpdb->query($sql);
    }
 }
 
@@ -233,4 +248,10 @@ function html2txt($text) {
 	return trim(preg_replace($search, $replace, $text));
 }
 
+function txt2html( $string )
+{
+  $string = str_replace ( '\\', '', $string );
+  $string = str_replace ( '"', '\"', $string );
+  return $string;
+}
 ?>
