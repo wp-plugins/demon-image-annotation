@@ -244,14 +244,18 @@ function html2txt($text) {
 			 '>',
 			 ' ',
 			 'chr(\1)');
-
-	return trim(preg_replace($search, $replace, $text));
+	
+	$string = trim(preg_replace($search, $replace, $text));
+	$newstring = str_replace(array("\r\n", "\r", "\n"), ' ', $string);
+	return $newstring;
+	//return trim(preg_replace($search, $replace, $text));
 }
 
 function txt2html( $string )
 {
   $string = str_replace ( '\\', '', $string );
   $string = str_replace ( '"', '\"', $string );
+  $string = str_replace(array("\r\n", "\r", "\n"), '\\n', $string);
   return $string;
 }
 ?>
