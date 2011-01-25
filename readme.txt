@@ -1,6 +1,6 @@
 === demon image annotation ===
 Contributors: demonisblack
-Tags: comment,comments,image,images,note,annotation,image annotation
+Tags: comment,comments,image,images,note,notes,annotation,image annotation,dannychoo,facebook,tag,flickr
 Requires at least: 2.5
 Tested up to: 3.0.3
 Stable tag: 2.3
