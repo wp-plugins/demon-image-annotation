@@ -459,6 +459,7 @@
                                     where note_ID = '".$imgid."'		
                                 ";
                 $wpdb->query($query);
+				//echo "UPDATE wp_comments SET comment_content = '".$_POST['note_text']."' WHERE comment_ID = ".$commentid." and comment_content = '".$note_text_old."'";
             ?><div class="updated"><p><strong><?php _e('Image note saved.' ); ?></strong></p></div>
             <?php }
         } ?>
@@ -481,9 +482,9 @@
 										where note_ID = '".$_POST['note_id']."'		
 									";
 									$wpdb->query($query);
-									echo $query;
+									//echo $query;
 								$wpdb->query("UPDATE wp_comments SET comment_approved = '1' WHERE comment_ID = ".$comment_id." and comment_content = '".$content."'");
-								echo "UPDATE wp_comments SET comment_approved = '1' WHERE comment_ID = ".$comment_id." and comment_content = '".$content."'";
+								//echo "UPDATE wp_comments SET comment_approved = '1' WHERE comment_ID = ".$comment_id." and comment_content = '".$content."'";
 								?><div class="updated"><p><strong><?php _e('Comment approved.' ); ?></strong></p></div>
 								<?php 
 							} else {
@@ -492,9 +493,9 @@
 										where note_ID = '".$_POST['note_id']."'		
 									";
 									$wpdb->query($query);
-									echo $query;
+									//echo $query;
 								$wpdb->query("UPDATE wp_comments SET comment_approved = '0' WHERE comment_ID = ".$comment_id." and comment_content = '".$content."'");
-								echo "UPDATE wp_comments SET comment_approved = '0' WHERE comment_ID = ".$comment_id." and comment_content = '".$content."'";
+								//echo "UPDATE wp_comments SET comment_approved = '0' WHERE comment_ID = ".$comment_id." and comment_content = '".$content."'";
 								?><div class="updated"><p><strong><?php _e('Comment unapprove.' ); ?></strong></p></div>
 								<?php 
 							}

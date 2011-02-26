@@ -154,6 +154,8 @@ function getResults() {
 	
 	//output JSON array
 	echo "[";
+	$numItems = count($result);
+	$i = 0;
 	foreach ($result as $topten) {		
 		if( (get_option('demon_image_annotation_comments') == '0') ) {
 			$commentApprove = $wpdb->get_var("SELECT comment_approved FROM wp_comments WHERE comment_ID = ".(int)$topten->note_comment_ID);
@@ -172,9 +174,9 @@ function getResults() {
 				//add gravatar
 				$notetext = txt2html($topten->note_text);
 				if( (get_option('demon_image_annotation_gravatar') == '0') ) {
-					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".get_avatar($topten->note_email, 20, $defaultgravatar)." ".$topten->note_author."</div>\"},";
+					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".get_avatar($topten->note_email, 20, $defaultgravatar)." ".$topten->note_author."</div>\"}";
 				} else {
-					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".$topten->note_author."</div>\"},";
+					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".$topten->note_author."</div>\"}";
 				}
 			}
 		} else {
@@ -182,11 +184,15 @@ function getResults() {
 				//add gravatar
 				$notetext = txt2html($topten->note_text);
 				if( (get_option('demon_image_annotation_gravatar') == '0') ) {
-					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".get_avatar($topten->note_email, 20, $defaultgravatar)." ".$topten->note_author."</div>\"},";
+					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".get_avatar($topten->note_email, 20, $defaultgravatar)." ".$topten->note_author."</div>\"}";
 				} else {
-					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".$topten->note_author."</div>\"},";
+					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".$topten->note_author."</div>\"}";
 				}	
 			}
+		}
+		$i++;
+		if($i != $numItems) {
+			echo ",";
 		}
 	};
 	echo "]";
