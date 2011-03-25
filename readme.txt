@@ -3,7 +3,7 @@ Contributors: demonisblack
 Tags: comment,comments,image,images,note,notes,annotation,image annotation,dannychoo,facebook,tag,flickr
 Requires at least: 2.5
 Tested up to: 3.1
-Stable tag: 2.4
+Stable tag: 2.4.1
 
 Allows you to add textual annotations to images by select a region of the image and then attach a textual description.
 
@@ -45,6 +45,9 @@ No questions have been asked.
 4. Image annotation list.
 
 == Changelog ==
+
+= 2.4.1   =
+* Fixed on Image Notes Tab not display in Safari browser.
 
 = 2.4   =
 * Fixed on Chrome and IE browsers.

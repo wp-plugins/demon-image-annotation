@@ -525,7 +525,6 @@
         
         <?php echo "<h4>" . __( 'Image Notes', 'dia_trdom' ) . "</h4>"; ?>
         <script language="javascript">
-		<!--
 		function deleteRecord(recID) {
 			var docForm = document.imagenotes;
 			document.getElementById("note_id").value = recID;
@@ -552,7 +551,6 @@
 			document.getElementById("update_comment_status").value = "yes";		
 			docForm.submit();
 		}
-		//->
 		</script>
 		
         <form name="imagenotes" action="" method="post">
