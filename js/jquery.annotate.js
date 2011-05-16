@@ -8,16 +8,15 @@
         ///	</summary>
         var opts = $.extend({}, $.fn.annotateImage.defaults, options);
         var image = this;
-
+		
+		this.imageloaded = false;
         this.image = this;
         this.mode = 'view';
 
         // Assign defaults
 		this.getPostID = opts.getPostID;
 		this.getImgID = opts.getImgID;
-        this.getUrl = opts.getUrl;
-        this.saveUrl = opts.saveUrl;
-        this.deleteUrl = opts.deleteUrl;
+        this.pluginUrl = opts.pluginUrl;
         this.editable = opts.editable;
 		this.addable = opts.addable;
         this.useAjax = opts.useAjax;
@@ -43,16 +42,31 @@
                 $(this).children('.image-annotate-view').show();
             }
         }, function() {
-            $(this).children('.image-annotate-view').hide();
+            if($(this).children().hasClass('image-annotate-error') || $(this).children().hasClass('image-annotate-loading')) {
+            	$(this).children('.image-annotate-view').show();
+			} else {
+				$(this).children('.image-annotate-view').hide();
+			}
         });
 
         this.canvas.children('.image-annotate-view').hover(function() {
-            $(this).show();
+			if($(this).hasClass('image-annotate-error')) {
+				$(this).show();	
+				$(this).removeClass('image-annotate-error');
+				$(this).addClass('image-annotate-loading');
+				$.fn.annotateImage.ajaxLoad(this);
+			} else {
+				$(this).show();	
+			}
         }, function() {
-            $(this).hide();
+			if($(this).hasClass('image-annotate-error') || $(this).hasClass('image-annotate-loading')) {
+            	$(this).show();
+			} else {
+				$(this).hide();
+			}
         });
 
-        // load the notes
+        // load the notes		
         if (this.useAjax) {
             $.fn.annotateImage.ajaxLoad(this);
         } else {
@@ -73,14 +87,20 @@
 
         return this;
     };
+	
+	function ajaxTimeOut(image) {
+		if(image.imageloaded == false) {
+			image.canvas.children('.image-annotate-view').removeClass('image-annotate-loading');
+			image.canvas.children('.image-annotate-view').addClass('image-annotate-error');
+			image.canvas.children('.image-annotate-view').show();
+		}
+	}
 
     /**
     * Plugin Defaults
     **/
     $.fn.annotateImage.defaults = {
-        getUrl: 'your-get.rails',
-        saveUrl: 'your-save.rails',
-        deleteUrl: 'your-delete.rails',
+        pluginUrl: 'your-get.rails',
         editable: true,
         useAjax: true,
         notes: new Array()
@@ -101,14 +121,16 @@
         ///		Loads the annotations from the "getUrl" property passed in on the
         ///     options object.
         ///	</summary>
+		image.ajaxLoadTime = setTimeout(ajaxTimeOut, 15000, image);
 		
-        $.getJSON(image.getUrl + '?action=get&imgid=' + image.getImgID + '&ticks=' + $.fn.annotateImage.getTicks(), function(data) {
+        $.getJSON(image.pluginUrl + '?action=get&imgid=' + image.getImgID + '&ticks=' + $.fn.annotateImage.getTicks(), function(data) {
 			//if(image.notes.length != 0) {	
 				//this.parents().removeClass('image-annotate-loading');
             	image.notes = data;
             	$.fn.annotateImage.load(image);
 			//}
         });
+		
     };
 
     $.fn.annotateImage.load = function(image) {
@@ -116,8 +138,11 @@
         ///		Loads the annotations from the notes property passed in on the
         ///     options object.
         ///	</summary>
-		//alert(this.attr("id"))
+		
 		image.canvas.children('.image-annotate-view').removeClass('image-annotate-loading');
+		image.imageloaded = true;
+		//image.canvas.children('.image-annotate-view').hide();
+		
 		if(image.notes.length != 0) {
 			for (var i = 0; i < image.notes.length; i++) {
 				image.notes[image.notes[i]] = new $.fn.annotateView(image, image.notes[i]);
@@ -194,9 +219,9 @@
 				// Save via AJAX
 				if (image.useAjax) {
 					$.ajax({
-						url: image.saveUrl + "?action=save&imgid=" + image.getImgID + "&postid=" + image.getPostID,
+						url: image.pluginUrl + "?action=save&imgid=" + image.getImgID + "&postid=" + image.getPostID,
 						data: form.serialize(),
-						error: function(e) { alert("An error occured saving that note.") },
+						error: function(xhr, ajaxOptions, thrownError) { /*alert("An error occured saving that note." + thrownError)*/ },
 						success: function(data) {
 					if (data.annotation_id != undefined) {
 						editable.note.id = data.annotation_id;
@@ -396,7 +421,11 @@
             this.area.click(function() {
                 form.edit();
             });
-        }
+        } else {
+			this.area.click(function() {
+				window.location.hash = "#comment-" + note.commentid;
+			});
+		}
     };
 
     $.fn.annotateView.prototype.setPosition = function() {
@@ -466,7 +495,7 @@
 				$.fn.annotateImage.appendPosition(form, editable)
                 if (annotation.image.useAjax) {
                     $.ajax({
-                        url: annotation.image.deleteUrl + "?action=delete&imgid=" + annotation.image.getImgID,
+                        url: annotation.image.pluginUrl + "?action=delete&imgid=" + annotation.image.getImgID,
                         data: form.serialize(),
                         error: function(e) { alert("An error occured deleting that note.") }
                     });

@@ -33,7 +33,7 @@ function getSave() {
 		//if image note is not new will delete the old image note
 		
 		//find the old image note
-		$result = $wpdb->get_results("SELECT * FROM wp_imagenote WHERE note_img_ID='".$imgID."' and note_text_ID='".$data[5]."'");
+		$result = $wpdb->get_results("SELECT * FROM demon_imagenote WHERE note_img_ID='".$imgID."' and note_text_ID='".$data[5]."'");
 		foreach ($result as $commentresult) {
 			$comment_id = (int)$commentresult->note_comment_ID; //comment ID
 			$comment_author = $commentresult->note_author; //comment Author
@@ -41,7 +41,7 @@ function getSave() {
 		};
 		
 		//delete image note
-		$wpdb->query(" DELETE FROM wp_imagenote WHERE note_img_ID='".$imgID."' and note_text_ID='".$data[5]."'");
+		$wpdb->query(" DELETE FROM demon_imagenote WHERE note_img_ID='".$imgID."' and note_text_ID='".$data[5]."'");
 		
 		//update comment with latest image note
 		if( (get_option('demon_image_annotation_comments') == '0') ) {
@@ -78,12 +78,12 @@ function getSave() {
 			$comment_type = '';
 			$comment_parent = isset($_POST['comment_parent']) ? absint($_POST['comment_parent']) : 0;
 			$commentdata = compact('comment_post_ID', 'comment_author', 'comment_author_email', 'comment_author_url', 'comment_content', 'comment_type', 'comment_parent', 'user_ID');
-			$comment_id = wp_new_comment( $commentdata );
+			$comment_id = wp_new_comment($commentdata);
 		}
 	}
 	
 	//insert new image note
-	$wpdb->query("INSERT INTO `wp_imagenote`
+	$wpdb->query("INSERT INTO `demon_imagenote`
 										(
 											`note_img_ID`,
 											`note_comment_ID`,
@@ -129,14 +129,14 @@ function getDelete() {
 
 	global $wpdb;
 	
-	//find the comment ID frm wp_imagenote
-	$result = $wpdb->get_results("SELECT * FROM wp_imagenote WHERE note_img_ID='".$qsType."' and note_text_ID='".$data[0]."'");
+	//find the comment ID frm demon_imagenote
+	$result = $wpdb->get_results("SELECT * FROM demon_imagenote WHERE note_img_ID='".$qsType."' and note_text_ID='".$data[0]."'");
 	foreach ($result as $commentresult) {
 		$comment_id = (int)$commentresult->note_comment_ID; //comment ID
 	};
 	
 	//delete note
-	$wpdb->query("DELETE FROM wp_imagenote WHERE note_img_ID='".$qsType."' and note_text_ID='".$data[0]."'");
+	$wpdb->query("DELETE FROM demon_imagenote WHERE note_img_ID='".$qsType."' and note_text_ID='".$data[0]."'");
 	
 	//delete comment
 	$wpdb->query("DELETE FROM wp_comments WHERE comment_ID = ".$comment_id);
@@ -144,16 +144,16 @@ function getDelete() {
 
 function getResults() {
 	//create table at fisrt
-	createTable();
 	
 	//get image note
 	$qsType = isset($_REQUEST['imgid']) ? trim($_REQUEST['imgid']) : '';
 	
 	global $wpdb;
-	$result = $wpdb->get_results("SELECT * FROM wp_imagenote WHERE note_img_ID = '".$qsType."' ");
+	$result = $wpdb->get_results("SELECT * FROM demon_imagenote WHERE note_img_ID = '".$qsType."' ");
 	
 	//output JSON array
 	echo "[";
+	$next = "";
 	$numItems = count($result);
 	$i = 0;
 	foreach ($result as $topten) {		
@@ -161,7 +161,7 @@ function getResults() {
 			$commentApprove = $wpdb->get_var("SELECT comment_approved FROM wp_comments WHERE comment_ID = ".(int)$topten->note_comment_ID);
 			//the image note will auto delete if comment is deleted from admin, 
 			if($commentApprove == "") {
-				$wpdb->query("DELETE FROM wp_imagenote WHERE note_img_ID='".$qsType."' and note_text_ID='".$topten->note_text_ID."'");
+				$wpdb->query("DELETE FROM demon_imagenote WHERE note_img_ID='".$qsType."' and note_text_ID='".$topten->note_text_ID."'");
 			}
 			
 			if(get_option('demon_image_annotation_gravatar_deafult') != '') {
@@ -171,65 +171,37 @@ function getResults() {
 			}
 			
 			if($commentApprove == 1) {
+				echo $next;
 				//add gravatar
 				$notetext = txt2html($topten->note_text);
 				if( (get_option('demon_image_annotation_gravatar') == '0') ) {
-					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".get_avatar($topten->note_email, 20, $defaultgravatar)." ".$topten->note_author."</div>\"}";
+					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".get_avatar($topten->note_email, 20, $defaultgravatar)." ".$topten->note_author."</div>\", \"commentid\": ".$topten->note_comment_ID."}";
 				} else {
-					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".$topten->note_author."</div>\"}";
+					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".$topten->note_author."</div>\", \"commentid\": ".$topten->note_comment_ID."}";
 				}
+			} else {
+				$next = "";
 			}
 		} else {
 			if($topten->note_approved == 1) {
 				//add gravatar
+				echo $next;
 				$notetext = txt2html($topten->note_text);
 				if( (get_option('demon_image_annotation_gravatar') == '0') ) {
-					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".get_avatar($topten->note_email, 20, $defaultgravatar)." ".$topten->note_author."</div>\"}";
+					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".get_avatar($topten->note_email, 20, $defaultgravatar)." ".$topten->note_author."</div>\", \"commentid\": ".$topten->note_comment_ID."}";
 				} else {
-					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".$topten->note_author."</div>\"}";
+					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".$topten->note_author."</div>\", \"commentid\": ".$topten->note_comment_ID."}";
 				}	
+			} else {
+				$next = "";
 			}
 		}
 		$i++;
 		if($i != $numItems) {
-			echo ",";
+			$next = ",";
 		}
 	};
 	echo "]";
-}
-
-//create table function
-function createTable () {
-   global $wpdb;
-   $table_name = "wp_imagenote";
-   if($wpdb->get_var("show tables like '$table_name'") != $table_name) {
-      
-      $sql = "CREATE TABLE IF NOT EXISTS `wp_imagenote` (
-	  `note_ID` int(11) NOT NULL AUTO_INCREMENT,
-	  `note_img_ID` varchar(30) NOT NULL,
-	  `note_comment_ID` int(11) NOT NULL,
-	  `note_author` varchar(100) NOT NULL,
-	  `note_email` varchar(100) NOT NULL,
-	  `note_top` int(11) NOT NULL,
-	  `note_left` int(11) NOT NULL,
-	  `note_width` int(11) NOT NULL,
-	  `note_height` int(11) NOT NULL,
-	  `note_text` text NOT NULL,
-	  `note_text_ID` varchar(100) NOT NULL,
-	  `note_editable` tinyint(1) NOT NULL,
-	  `note_date` datetime NOT NULL,
-	  PRIMARY KEY (`note_ID`)
-	) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=21 ;";
-
-      require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-      dbDelta($sql);
-   } else {
-	  $sql = "ALTER TABLE `wp_imagenote` modify `note_img_ID` VARCHAR(30);";
-	  $wpdb->query($sql);
-	  
-	  $sql = "ALTER TABLE `wp_imagenote` ADD `note_approved` VARCHAR(20) DEFAULT '1' AFTER `note_editable`;";
-	  $wpdb->query($sql);
-   }
 }
 
 function html2txt($text) {

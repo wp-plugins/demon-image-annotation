@@ -4,7 +4,7 @@ Plugin Name: Demon Image Annotations
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 Description: 'Allows you to add textual annotations to images by select a region of the image and then attach a textual description, the concept of annotating images with user comments.'
 Author: Demon
-Version: 2.4.1
+Version: 2.4.3
 Author URI: http://www.superwhite.cc
 */
 
@@ -96,6 +96,10 @@ function load_image_annotation_js() {
 								//deactive the lnik if exist
 								$(this).parent("a").removeAttr("href");
 								
+								<?php if( (get_option('demon_image_annotation_dia_imgtag') == '0') ) { ?>
+								$(this).parent("a").removeAttr("title");
+								<?php } ?>
+								
 								$(this).attr("id", imgid);
 								$(this).wrap($('<div id=' + imgid.substring(4,imgid.length) + ' ></div>'));
 								var imagenotedesc = "<?php echo get_option('demon_image_annotation_mouseoverdesc'); ?>";
@@ -119,9 +123,7 @@ function load_image_annotation_js() {
 									$(this).annotateImage({
 										getPostID: <?php global $wp_query; $thePostID = $wp_query->post->ID; echo $thePostID; ?>,
 										getImgID: imgid,
-										getUrl: "<?php echo $plugindir; ?>/imageannotation-run.php",
-										saveUrl: "<?php echo $plugindir; ?>/imageannotation-run.php",
-										deleteUrl: "<?php echo $plugindir; ?>/imageannotation-run.php",
+										pluginUrl: "<?php echo $plugindir; ?>/imageannotation-run.php",
 										editable: <?php get_currentuserinfo(); global $user_level; if ($user_level > 0) { ?>editable<?php } else { ?> false <?php } ?>,
 										addable: <?php get_currentuserinfo(); global $user_level; if ($user_level > 0) { ?>addablepage<?php } else { ?> addablecon == "true" ? true : false <?php } ?>
 									});
@@ -168,7 +170,7 @@ function getImgID() {
 	$commentID = $comment->comment_ID;
 	
 	global $wpdb;
-	$imgIDNow = $wpdb->get_var("SELECT note_img_ID FROM wp_imagenote WHERE note_comment_id = ".(int)$commentID);
+	$imgIDNow = $wpdb->get_var("SELECT note_img_ID FROM demon_imagenote WHERE note_comment_id = ".(int)$commentID);
 	
 	if($imgIDNow != "") {
 		$str = substr($imgIDNow, 4, strlen($imgIDNow));
@@ -178,15 +180,15 @@ function getImgID() {
 	}
 }
 
-function guan_getImgID_inserter($comment_ID = 0){
+function getImgID_inserter($comment_ID = 0){
 	getImgID();
-	$guan_comment_content = get_comment_text();
-	return $guan_comment_content;
+	$comment_content = get_comment_text();
+	return $comment_content;
 }
 
 if( (get_option('demon_image_annotation_display') == '0') ) {
 	if( (get_option('demon_image_annotation_thumbnail') == '0') ) {
-		add_filter('comment_text', 'guan_getImgID_inserter', 10, 4);
+		add_filter('comment_text', 'getImgID_inserter', 10, 4);
 	}
 }
 
@@ -198,7 +200,47 @@ function demonimageannotation_admin() {
 }
 
 function demonimageannotation_admin_actions() {
-    add_options_page("demon-Image-Annotation", "demon-Image-Annotation", 'manage_options', "demon-Image-Annotation", "demonimageannotation_admin");
+	add_menu_page('demon-Image-Annotation', 'demon-Image-Annotation', 'manage_options', 'demon-Image-Annotation', 'demonimageannotation_admin', plugins_url('icon.png',__FILE__));
+	changeTableName();
+}
+
+function changeTableName() {
+	global $wpdb;
+    $table_name = "demon_imagenote";
+    if($wpdb->get_var("show tables like '$table_name'") != $table_name) {
+   		$sql = "Rename table `wp_imagenote` to `demon_imagenote`;";
+		$wpdb->query($sql);
+    }
+	
+	 $table_name = "demon_imagenote";
+	   if($wpdb->get_var("show tables like '$table_name'") != $table_name) {
+		  
+		  $sql = "CREATE TABLE IF NOT EXISTS `demon_imagenote` (
+		  `note_ID` int(11) NOT NULL AUTO_INCREMENT,
+		  `note_img_ID` varchar(30) NOT NULL,
+		  `note_comment_ID` int(11) NOT NULL,
+		  `note_author` varchar(100) NOT NULL,
+		  `note_email` varchar(100) NOT NULL,
+		  `note_top` int(11) NOT NULL,
+		  `note_left` int(11) NOT NULL,
+		  `note_width` int(11) NOT NULL,
+		  `note_height` int(11) NOT NULL,
+		  `note_text` text NOT NULL,
+		  `note_text_ID` varchar(100) NOT NULL,
+		  `note_editable` tinyint(1) NOT NULL,
+		  `note_date` datetime NOT NULL,
+		  PRIMARY KEY (`note_ID`)
+		) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=21 ;";
+	
+		  require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+		  dbDelta($sql);
+	   } else {
+		  $sql = "ALTER TABLE `demon_imagenote` modify `note_img_ID` VARCHAR(30);";
+		  $wpdb->query($sql);
+		  
+		  $sql = "ALTER TABLE `demon_imagenote` ADD `note_approved` VARCHAR(20) DEFAULT '1' AFTER `note_editable`;";
+		  $wpdb->query($sql);
+	   }
 }
 
 

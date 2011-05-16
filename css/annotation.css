@@ -34,6 +34,11 @@
 	background: url(../images/loading.gif) no-repeat;
 }
 
+/*image note error*/
+.image-annotate-error {
+	background: url(../images/error.gif) no-repeat;
+}
+
 /*image note author*/
 .image-annotate-author {
 	font-size:11px;
@@ -115,10 +120,11 @@
 }
 
 #image-annotate-edit-form {
+	font-family: Verdana, Sans-Serif;
+    font-size: 11px;
 	background: #F7F6F4 none repeat scroll 0 0;
     border: 1px solid #E2E2E2;
-	font-size:10px;
-    height: 140px;
+    height: 160px;
     padding: 7px;
     position: absolute;
     width: 260px;
@@ -140,15 +146,16 @@
 }
 
 #image-annotate-edit-form input {
-	 font-size: 11px;
+	font-family: Verdana, Sans-Serif;
+	font-size:11px;
 	 margin:1px;
 	 width:75%;
 }
 
 #image-annotate-edit-form textarea {
-    height: 50px;
-    font-family: Verdana, Sans-Serif;
-    font-size: 11px;    
+	font-family: Verdana, Sans-Serif;
+	font-size:11px;
+    height: 50px;   
     width: 240px;
 }
 #image-annotate-edit-form fieldset {

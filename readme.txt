@@ -3,7 +3,7 @@ Contributors: demonisblack
 Tags: comment,comments,image,images,note,notes,annotation,image annotation,dannychoo,facebook,tag,flickr
 Requires at least: 2.5
 Tested up to: 3.1
-Stable tag: 2.4.1
+Stable tag: 2.4.3
 
 Allows you to add textual annotations to images by select a region of the image and then attach a textual description.
 
@@ -31,7 +31,7 @@ Some features:
 1. Put the plugin folder into [wordpress_dir]/wp-content/plugins/
 2. Go into the WordPress admin interface and activate the plugin
 3. Choose the settings you want in demon-image-annotation settings.
-5. Complete usage instructions are available here. (http://www.superwhite.cc/demon/image-annotation-plugin)
+4. Complete usage instructions are available here. (http://www.superwhite.cc/demon/image-annotation-plugin)
 
 == Frequently Asked Questions ==
 
@@ -45,6 +45,13 @@ No questions have been asked.
 4. Image annotation list.
 
 == Changelog ==
+
+= 2.4.3   =
+* Fixed on database name issue.
+* Fixed pop up error while saving.
+* Fixed image notes not loading that is not approve.
+* Show error occured message when loading image notes timeout.
+* Add option to remove HTML image tags.
 
 = 2.4.1   =
 * Fixed on Image Notes Tab not display in Safari browser.
