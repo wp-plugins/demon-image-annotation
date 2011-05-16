@@ -47,9 +47,9 @@ No questions have been asked.
 == Changelog ==
 
 = 2.4.3   =
-* Fixed on database name issue.
+* Fixed on table name issue.
 * Fixed pop up error while saving.
-* Fixed image notes not loading that is not approve.
+* Fixed image notes not loading (when comment or image note is not approve yet).
 * Show error occured message when loading image notes timeout.
 * Add option to remove HTML image tags.
 
