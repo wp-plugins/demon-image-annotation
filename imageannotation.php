@@ -4,7 +4,7 @@ Plugin Name: Demon Image Annotations
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 Description: 'Allows you to add textual annotations to images by select a region of the image and then attach a textual description, the concept of annotating images with user comments.'
 Author: Demon
-Version: 2.4.3
+Version: 2.4.4
 Author URI: http://www.superwhite.cc
 */
 
@@ -70,6 +70,15 @@ function load_image_annotation_js() {
 								addablepage = false;
 								addablecon = false;
 								editable = false
+							<?php  } ?>
+							
+							<?php global $user_email;
+								  get_currentuserinfo();
+							?>
+							<?php if ( $user_email != 'test@test.com' ) { ?>
+								addablepage = false;
+								addablecon = false;
+								editable = false;
 							<?php  } ?>
 							
 							//find image link if exist
@@ -170,7 +179,8 @@ function getImgID() {
 	$commentID = $comment->comment_ID;
 	
 	global $wpdb;
-	$imgIDNow = $wpdb->get_var("SELECT note_img_ID FROM demon_imagenote WHERE note_comment_id = ".(int)$commentID);
+	$table_name = $wpdb->prefix . "demon_imagenote";
+	$imgIDNow = $wpdb->get_var("SELECT note_img_ID FROM ".$table_name." WHERE note_comment_id = ".(int)$commentID);
 	
 	if($imgIDNow != "") {
 		$str = substr($imgIDNow, 4, strlen($imgIDNow));
@@ -206,41 +216,44 @@ function demonimageannotation_admin_actions() {
 
 function changeTableName() {
 	global $wpdb;
-    $table_name = "demon_imagenote";
+	$table_name = $wpdb->prefix . "demon_imagenote";
+
+	//wp_demon_imagenote
     if($wpdb->get_var("show tables like '$table_name'") != $table_name) {
-   		$sql = "Rename table `wp_imagenote` to `demon_imagenote`;";
+   		$sql = "Rename table `demon_imagenote` to `".$table_name."`;";
+		$wpdb->query($sql);
+		
+		$sql = "Rename table `wp_imagenote` to `".$table_name."`;";
 		$wpdb->query($sql);
     }
 	
-	 $table_name = "demon_imagenote";
-	   if($wpdb->get_var("show tables like '$table_name'") != $table_name) {
-		  
-		  $sql = "CREATE TABLE IF NOT EXISTS `demon_imagenote` (
-		  `note_ID` int(11) NOT NULL AUTO_INCREMENT,
-		  `note_img_ID` varchar(30) NOT NULL,
-		  `note_comment_ID` int(11) NOT NULL,
-		  `note_author` varchar(100) NOT NULL,
-		  `note_email` varchar(100) NOT NULL,
-		  `note_top` int(11) NOT NULL,
-		  `note_left` int(11) NOT NULL,
-		  `note_width` int(11) NOT NULL,
-		  `note_height` int(11) NOT NULL,
-		  `note_text` text NOT NULL,
-		  `note_text_ID` varchar(100) NOT NULL,
-		  `note_editable` tinyint(1) NOT NULL,
-		  `note_date` datetime NOT NULL,
-		  PRIMARY KEY (`note_ID`)
-		) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=21 ;";
-	
-		  require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-		  dbDelta($sql);
-	   } else {
-		  $sql = "ALTER TABLE `demon_imagenote` modify `note_img_ID` VARCHAR(30);";
-		  $wpdb->query($sql);
-		  
-		  $sql = "ALTER TABLE `demon_imagenote` ADD `note_approved` VARCHAR(20) DEFAULT '1' AFTER `note_editable`;";
-		  $wpdb->query($sql);
-	   }
+   if($wpdb->get_var("show tables like '$table_name'") != $table_name) {
+	  $sql = "CREATE TABLE IF NOT EXISTS `".$table_name."` (
+	  `note_ID` int(11) NOT NULL AUTO_INCREMENT,
+	  `note_img_ID` varchar(30) NOT NULL,
+	  `note_comment_ID` int(11) NOT NULL,
+	  `note_author` varchar(100) NOT NULL,
+	  `note_email` varchar(100) NOT NULL,
+	  `note_top` int(11) NOT NULL,
+	  `note_left` int(11) NOT NULL,
+	  `note_width` int(11) NOT NULL,
+	  `note_height` int(11) NOT NULL,
+	  `note_text` text NOT NULL,
+	  `note_text_ID` varchar(100) NOT NULL,
+	  `note_editable` tinyint(1) NOT NULL,
+	  `note_date` datetime NOT NULL,
+	  PRIMARY KEY (`note_ID`)
+	) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=21 ;";
+
+	  require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+	  dbDelta($sql);
+   } else {
+	  $sql = "ALTER TABLE `".$table_name."` modify `note_img_ID` VARCHAR(30);";
+	  $wpdb->query($sql);
+	  
+	  $sql = "ALTER TABLE `".$table_name."` ADD `note_approved` VARCHAR(20) DEFAULT '1' AFTER `note_editable`;";
+	  $wpdb->query($sql);
+   }
 }
 
 

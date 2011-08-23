@@ -3,6 +3,7 @@ require_once( "config.php" );
 
 $action = isset($_REQUEST['action']) ? trim($_REQUEST['action']) : '';
 
+
 if($action == "get") {
 	getResults();	
 } else if($action == "save") {
@@ -29,11 +30,12 @@ function getSave() {
 	);	
 	
 	global $wpdb;
+	$table_name = $wpdb->prefix . "demon_imagenote";
 	if($data[5] != "new") {
 		//if image note is not new will delete the old image note
 		
 		//find the old image note
-		$result = $wpdb->get_results("SELECT * FROM demon_imagenote WHERE note_img_ID='".$imgID."' and note_text_ID='".$data[5]."'");
+		$result = $wpdb->get_results("SELECT * FROM ".$table_name." WHERE note_img_ID='".$imgID."' and note_text_ID='".$data[5]."'");
 		foreach ($result as $commentresult) {
 			$comment_id = (int)$commentresult->note_comment_ID; //comment ID
 			$comment_author = $commentresult->note_author; //comment Author
@@ -41,7 +43,7 @@ function getSave() {
 		};
 		
 		//delete image note
-		$wpdb->query(" DELETE FROM demon_imagenote WHERE note_img_ID='".$imgID."' and note_text_ID='".$data[5]."'");
+		$wpdb->query(" DELETE FROM ".$table_name." WHERE note_img_ID='".$imgID."' and note_text_ID='".$data[5]."'");
 		
 		//update comment with latest image note
 		if( (get_option('demon_image_annotation_comments') == '0') ) {
@@ -83,7 +85,7 @@ function getSave() {
 	}
 	
 	//insert new image note
-	$wpdb->query("INSERT INTO `demon_imagenote`
+	$wpdb->query("INSERT INTO `".$table_name."`
 										(
 											`note_img_ID`,
 											`note_comment_ID`,
@@ -128,15 +130,15 @@ function getDelete() {
 	);
 
 	global $wpdb;
-	
-	//find the comment ID frm demon_imagenote
-	$result = $wpdb->get_results("SELECT * FROM demon_imagenote WHERE note_img_ID='".$qsType."' and note_text_ID='".$data[0]."'");
+	$table_name = $wpdb->prefix . "demon_imagenote";
+	//find the comment ID frm ".$table_name."
+	$result = $wpdb->get_results("SELECT * FROM ".$table_name." WHERE note_img_ID='".$qsType."' and note_text_ID='".$data[0]."'");
 	foreach ($result as $commentresult) {
 		$comment_id = (int)$commentresult->note_comment_ID; //comment ID
 	};
 	
 	//delete note
-	$wpdb->query("DELETE FROM demon_imagenote WHERE note_img_ID='".$qsType."' and note_text_ID='".$data[0]."'");
+	$wpdb->query("DELETE FROM ".$table_name." WHERE note_img_ID='".$qsType."' and note_text_ID='".$data[0]."'");
 	
 	//delete comment
 	$wpdb->query("DELETE FROM wp_comments WHERE comment_ID = ".$comment_id);
@@ -149,7 +151,8 @@ function getResults() {
 	$qsType = isset($_REQUEST['imgid']) ? trim($_REQUEST['imgid']) : '';
 	
 	global $wpdb;
-	$result = $wpdb->get_results("SELECT * FROM demon_imagenote WHERE note_img_ID = '".$qsType."' ");
+	$table_name = $wpdb->prefix . "demon_imagenote";
+	$result = $wpdb->get_results("SELECT * FROM ".$table_name." WHERE note_img_ID = '".$qsType."' ");
 	
 	//output JSON array
 	echo "[";
@@ -161,7 +164,7 @@ function getResults() {
 			$commentApprove = $wpdb->get_var("SELECT comment_approved FROM wp_comments WHERE comment_ID = ".(int)$topten->note_comment_ID);
 			//the image note will auto delete if comment is deleted from admin, 
 			if($commentApprove == "") {
-				$wpdb->query("DELETE FROM demon_imagenote WHERE note_img_ID='".$qsType."' and note_text_ID='".$topten->note_text_ID."'");
+				$wpdb->query("DELETE FROM ".$table_name." WHERE note_img_ID='".$qsType."' and note_text_ID='".$topten->note_text_ID."'");
 			}
 			
 			if(get_option('demon_image_annotation_gravatar_deafult') != '') {

@@ -52,6 +52,7 @@
 <?php //tab settings 
 	$tab = isset($_REQUEST['tab']) ? trim($_REQUEST['tab']) : 'settings';
 	global $wpdb;
+	$table_name = $wpdb->prefix . "demon_imagenote";
 ?>
  <div class="wrap">
 <?php  echo "<h2>" . __( 'demon-Image-Annotation Settings', 'dia_trdom' ) . "</h2>"; ?>
@@ -357,7 +358,7 @@
 			if($_POST['s'] != '') {
 				if( (get_option('demon_image_annotation_comments') == '0') ) {
 					//find comment id and comment text
-					$query = "SELECT * from demon_imagenote where note_ID in (" . implode(',', $_POST['s']) . ")";
+					$query = "SELECT * from ".$table_name." where note_ID in (" . implode(',', $_POST['s']) . ")";
 					$result = $wpdb->get_results($query);
 					foreach ($result as $r) {
 						$comment_id = $r->note_comment_ID;
@@ -368,7 +369,63 @@
 					}
 				}
 				//delete note
-				$query = "delete from demon_imagenote where note_ID in (" . implode(',', $_POST['s']) . ")";
+				$query = "delete from ".$table_name." where note_ID in (" . implode(',', $_POST['s']) . ")";
+				$wpdb->query($query); ?>
+				<div class="updated"><p><strong><?php _e('Images Note Removed.' ); ?></strong></p></div>
+            <?php }
+        }?>
+        
+        <?php 
+		//image notes selected unapprove
+        if (isset($_POST['unapprove_selected_notes'])) {
+            if (!wp_verify_nonce($_POST['_wpnonce'], 'imagenotesaction')) die('Remove selected security violated');
+			
+			if($_POST['s'] != '') {
+				if( (get_option('demon_image_annotation_comments') == '0') ) {
+					//find comment id and comment text
+					$query = "SELECT * from ".$table_name." where note_ID in (" . implode(',', $_POST['s']) . ")";
+					$result = $wpdb->get_results($query);
+					foreach ($result as $r) {
+						$comment_id = $r->note_comment_ID;
+						$content = $r->note_text;
+						
+						//delete comment
+						$wpdb->query("UPDATE wp_comments SET comment_approved = '0' WHERE comment_ID = ".$comment_id." and comment_content = '".$content."'");
+					}
+				}
+				//delete note
+				$query = "UPDATE `".$table_name."` SET
+						`note_approved` = '0'
+						where note_ID = '".$_POST['note_id']."'		
+					";
+				$wpdb->query($query); ?>
+				<div class="updated"><p><strong><?php _e('Images Note Removed.' ); ?></strong></p></div>
+            <?php }
+        }?>
+        
+        <?php 
+		//image notes selected approve
+        if (isset($_POST['approve_selected_notes'])) {
+            if (!wp_verify_nonce($_POST['_wpnonce'], 'imagenotesaction')) die('Remove selected security violated');
+			
+			if($_POST['s'] != '') {
+				if( (get_option('demon_image_annotation_comments') == '0') ) {
+					//find comment id and comment text
+					$query = "SELECT * from ".$table_name." where note_ID in (" . implode(',', $_POST['s']) . ")";
+					$result = $wpdb->get_results($query);
+					foreach ($result as $r) {
+						$comment_id = $r->note_comment_ID;
+						$content = $r->note_text;
+						
+						//delete comment
+						$wpdb->query("UPDATE wp_comments SET comment_approved = '1' WHERE comment_ID = ".$comment_id." and comment_content = '".$content."'");
+					}
+				}
+				//delete note
+				$query = "UPDATE `".$table_name."` SET
+						`note_approved` = '1'
+						where note_ID = '".$_POST['note_id']."'		
+					";
 				$wpdb->query($query); ?>
 				<div class="updated"><p><strong><?php _e('Images Note Removed.' ); ?></strong></p></div>
             <?php }
@@ -380,7 +437,7 @@
 			if($_POST['remove_single_note'] == "yes") {
 				if( (get_option('demon_image_annotation_comments') == '0') ) {
 					//find comment id and comment text
-					$query = "SELECT * from demon_imagenote where note_ID in (" .$_POST['note_id']. ")";
+					$query = "SELECT * from ".$table_name." where note_ID in (" .$_POST['note_id']. ")";
 					$result = $wpdb->get_results($query);
 					foreach ($result as $r) {
 						$comment_id = $r->note_comment_ID;
@@ -390,7 +447,7 @@
 					}
 				}
 				//delete note
-                $query = "delete from demon_imagenote where note_ID in (" .$_POST['note_id']. ")";
+                $query = "delete from ".$table_name." where note_ID in (" .$_POST['note_id']. ")";
                 $wpdb->query($query) ; ?>
                 <div class="updated"><p><strong><?php _e('Images Note Removed.' ); ?></strong></p></div>
             <?php
@@ -401,7 +458,7 @@
         if (isset($_POST['edit_single_note'])) {
             if (!wp_verify_nonce($_POST['_wpnonce'], 'imagenotesaction')) die('Edit security violated');
             if($_POST['edit_single_note'] == "yes") {
-				$query = "SELECT * from demon_imagenote where note_ID in (" .$_POST['note_id']. ")";
+				$query = "SELECT * from ".$table_name." where note_ID in (" .$_POST['note_id']. ")";
                 $result = $wpdb->get_results($query);
                 echo "<h4>" . __( 'Edit Image Note', 'dia_trdom' ) . "</h4>";
                 ?>
@@ -468,7 +525,7 @@
 				if( (get_option('demon_image_annotation_comments') == '0') ) {
 					$wpdb->query("UPDATE wp_comments SET comment_content = '".$_POST['note_text']."' WHERE comment_ID = ".$commentid." and comment_content = '".$note_text_old."'");
 				}
-                $query = "UPDATE `demon_imagenote` SET
+                $query = "UPDATE `".$table_name."` SET
                                     `note_author` = '".$_POST['note_author']."',
                                     `note_email` = '".$_POST['note_email']."',
                                     `note_top` = '".$_POST['note_top']."',
@@ -490,14 +547,14 @@
             if($_POST['update_comment_status'] == "yes") {
 					if( (get_option('demon_image_annotation_comments') == '0') ) {
 						//find comment id and comment text
-						$query = "SELECT * from demon_imagenote where note_ID in (" .$_POST['note_id']. ")";
+						$query = "SELECT * from ".$table_name." where note_ID in (" .$_POST['note_id']. ")";
 						$result = $wpdb->get_results($query);
 						foreach ($result as $r) {
 							$comment_id = $r->note_comment_ID;
 							$content = $r->note_text;
 							
 							if($_POST['note_comment_status'] == "1") {
-								$query = "UPDATE `demon_imagenote` SET
+								$query = "UPDATE `".$table_name."` SET
 										`note_approved` = '1'
 										where note_ID = '".$_POST['note_id']."'		
 									";
@@ -508,7 +565,7 @@
 								?><div class="updated"><p><strong><?php _e('Comment approved.' ); ?></strong></p></div>
 								<?php 
 							} else {
-								$query = "UPDATE `demon_imagenote` SET
+								$query = "UPDATE `".$table_name."` SET
 										`note_approved` = '0'
 										where note_ID = '".$_POST['note_id']."'		
 									";
@@ -522,7 +579,7 @@
 						}
 					} else {
 						if($_POST['note_comment_status'] == "1") {
-							$query = "UPDATE `demon_imagenote` SET
+							$query = "UPDATE `".$table_name."` SET
 										`note_approved` = '1'
 										where note_ID = '".$_POST['note_id']."'		
 									";
@@ -530,7 +587,7 @@
 							?><div class="updated"><p><strong><?php _e('Note Comment approved.' ); ?></strong></p></div>
 							<?php 
 						} else {
-							$query = "UPDATE `demon_imagenote` SET
+							$query = "UPDATE `".$table_name."` SET
 										`note_approved` = '0'
 										where note_ID = '".$_POST['note_id']."'		
 									";
@@ -585,7 +642,11 @@
             
             <?php
             require_once("pagination.class.php");
-            $items = mysql_num_rows(mysql_query("SELECT * FROM demon_imagenote;")); // number of total rows in the database
+            $items = mysql_num_rows(mysql_query("SELECT * FROM ".$table_name.";")); // number of total rows in the database
+			$items > 0 ? print '<input type="submit" name="approve_selected_notes" value="Approve Selected"/>' : '';
+			$items > 0 ? print '<input type="submit" name="unapprove_selected_notes" value="Unapprove Selected"/>' : '';
+			$items > 0 ? print '<input type="submit" name="remove_selected_notes" value="Remove Selected"/>' : '';
+			
             if($items > 0) {
                     $p = new pagination;
                     $p->items($items);
@@ -611,8 +672,7 @@
             
 			<?php
                 // sending query
-                //$result = $wpdb->get_results("SELECT * FROM demon_imagenote");
-                $sql = "SELECT * FROM demon_imagenote ORDER BY note_ID DESC ".$limit;
+                $sql = "SELECT * FROM ".$table_name." ORDER BY note_ID DESC ".$limit;
                 $result = $wpdb->get_results($sql);
                 
                 echo '<table class="widefat">';
@@ -684,6 +744,8 @@
                 echo '</tbody>';
                 echo "</table>";
 				$items == 0 ? print "No Record Found" : '';
+				$items > 0 ? print '<input type="submit" name="approve_selected_notes" value="Approve Selected"/>' : '';
+				$items > 0 ? print '<input type="submit" name="unapprove_selected_notes" value="Unapprove Selected"/>' : '';
                 $items > 0 ? print '<input type="submit" name="remove_selected_notes" value="Remove Selected"/>' : '';
                 ?>
             <?php $items > 0 ? print $p->show() : '';  // Echo out the list of paging. ?>
