@@ -4,7 +4,7 @@ Plugin Name: Demon Image Annotations
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 Description: 'Allows you to add textual annotations to images by select a region of the image and then attach a textual description, the concept of annotating images with user comments.'
 Author: Demon
-Version: 2.4.4
+Version: 2.4.5
 Author URI: http://www.superwhite.cc
 */
 
@@ -54,31 +54,23 @@ function load_image_annotation_js() {
 						if(idname.substring(4,idname.length) != 'exclude') {
 							//check if image annotation addable attribute exist
 							var addablecon = $(this).attr("addable")
-							addablecon = addablecon == undefined ? "true" : addablecon;
-							
+														
 							//disable if image annotation addable for admin only
 							<?php if (get_option('demon_image_annotation_admin') == '0') { ?>
-								addablecon = false;
+							addablecon = false;
+							<?php } else { ?>
+							addablecon = addablecon == undefined ? "true" : addablecon;
 							<?php } ?>
 							
-							//enable addable and editable only in single page
-							var addablepage = true;
-							var editable = true;
-							
+							//enable addable and editable only in single page						
 							//disable addable button if not in single page
 							<?php if ($plugin != 1) { ?>
-								addablepage = false;
-								addablecon = false;
-								editable = false
-							<?php  } ?>
-							
-							<?php global $user_email;
-								  get_currentuserinfo();
-							?>
-							<?php if ( $user_email != 'test@test.com' ) { ?>
-								addablepage = false;
-								addablecon = false;
-								editable = false;
+							var addablepage = false;
+							var editable = false
+							addablecon = false;
+							<?php  } else { ?>
+							var addablepage = true;
+							var editable = true;
 							<?php  } ?>
 							
 							//find image link if exist
