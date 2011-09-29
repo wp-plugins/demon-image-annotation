@@ -4,18 +4,18 @@ Plugin Name: Demon Image Annotations
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 Description: 'Allows you to add textual annotations to images by select a region of the image and then attach a textual description, the concept of annotating images with user comments.'
 Author: Demon
-Version: 2.4.6
+Version: 2.4.7
 Author URI: http://www.superwhite.cc
 */
 
 //*************** Header function ***************
 function load_jquery_js() {
 	wp_deregister_script('jquery');
-	wp_register_script( 'jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js');
+	wp_register_script( 'jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js');
     wp_enqueue_script( 'jquery' );
 	
 	wp_deregister_script('jquery-ui');
-	wp_register_script('jquery-ui','http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js',array('jquery'));
+	wp_register_script('jquery-ui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.js');
 	wp_enqueue_script('jquery-ui');
 	
 	$plugindir = get_settings('home').'/wp-content/plugins/'.dirname(plugin_basename(__FILE__));
@@ -228,7 +228,7 @@ function changeTableName() {
 	$table_name = $wpdb->prefix . "demon_imagenote";
 
 	//wp_demon_imagenote
-    if($wpdb->get_var("show tables like '$table_name'") != $table_name) {
+    if($wpdb->get_var("show tables like '".$table_name."'") != $table_name) {
    		$sql = "Rename table `demon_imagenote` to `".$table_name."`;";
 		$wpdb->query($sql);
 		
@@ -260,8 +260,11 @@ function changeTableName() {
 	  $sql = "ALTER TABLE `".$table_name."` modify `note_img_ID` VARCHAR(30);";
 	  $wpdb->query($sql);
 	  
-	  $sql = "ALTER TABLE `".$table_name."` ADD `note_approved` VARCHAR(20) DEFAULT '1' AFTER `note_editable`;";
-	  $wpdb->query($sql);
+	  if($wpdb->get_var("Show columns from ".$table_name." like 'note_approved'") != "note_approved") {
+		echo "RUNNING";
+   		$sql = "ALTER TABLE `".$table_name."` ADD `note_approved` VARCHAR(20) DEFAULT '1' AFTER `note_editable`;";
+	    $wpdb->query($sql);
+      }
    }
 }
 
