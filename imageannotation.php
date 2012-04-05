@@ -4,7 +4,7 @@ Plugin Name: Demon Image Annotations
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 Description: 'Allows you to add textual annotations to images by select a region of the image and then attach a textual description, the concept of annotating images with user comments.'
 Author: Demon
-Version: 2.4.7
+Version: 2.4.8
 Author URI: http://www.superwhite.cc
 */
 
@@ -22,10 +22,6 @@ function load_jquery_js() {
 	wp_deregister_script('jquery-annotate');
 	wp_register_script('jquery-annotate', $plugindir ."/js/jquery.annotate.js",array('jquery'));
 	wp_enqueue_script('jquery-annotate');
-	
-	wp_deregister_script('jquery-md5');
-	wp_register_script('jquery-md5', $plugindir ."/js/jquery.md5.js",array('jquery'));
-	wp_enqueue_script('jquery-md5');	
 }
 
 function load_image_annotation_js() {
@@ -95,7 +91,7 @@ function load_image_annotation_js() {
 								
 							//auto insert image id attribute
 							<?php if( (get_option('demon_image_annotation_autoimageid') == '0') ) { ?>
-								imgid = jQuery.md5(source);
+								imgid = jQuery(this).getMD5(source);
 								<?php if( (get_option('demon_image_annotation_autoimageid') == '0') ) { ?>
 									var postid = <?php global $wp_query; $thePostID = $wp_query->post->ID; echo $thePostID; ?>;
 									imgid = "img-" + postid + "-" + imgid.substring(0,10);
