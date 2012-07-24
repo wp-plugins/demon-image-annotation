@@ -1,6 +1,5 @@
 /// <reference path="jquery-1.2.6-vsdoc.js" />
 (function($) {
-
     $.fn.annotateImage = function(options) {
         ///	<summary>
         ///		Creates annotations on the given image.
@@ -124,7 +123,7 @@
         ///	</summary>
 		image.ajaxLoadTime = setTimeout(ajaxTimeOut, 15000, image);
 		
-        $.getJSON(image.pluginUrl + '?action=get&imgid=' + image.getImgID + '&ticks=' + $.fn.annotateImage.getTicks(), function(data) {
+        $.getJSON(image.pluginUrl + '.php?action=get&imgid=' + image.getImgID + '&ticks=' + $.fn.annotateImage.getTicks(), function(data) {
 			//if(image.notes.length != 0) {	
 				//this.parents().removeClass('image-annotate-loading');
             	image.notes = data;
@@ -220,7 +219,7 @@
 				// Save via AJAX
 				if (image.useAjax) {
 					$.ajax({
-						url: image.pluginUrl + "?action=save&imgid=" + image.getImgID + "&postid=" + image.getPostID,
+						url: image.pluginUrl + ".php?action=save&imgid=" + image.getImgID + "&postid=" + image.getPostID,
 						data: form.serialize(),
 						error: function(xhr, ajaxOptions, thrownError) { /*alert("An error occured saving that note." + thrownError)*/ },
 						success: function(data) {
@@ -496,7 +495,7 @@
 				$.fn.annotateImage.appendPosition(form, editable)
                 if (annotation.image.useAjax) {
                     $.ajax({
-                        url: annotation.image.pluginUrl + "?action=delete&imgid=" + annotation.image.getImgID,
+                        url: annotation.image.pluginUrl + ".php?action=delete&imgid=" + annotation.image.getImgID,
                         data: form.serialize(),
                         error: function(e) { alert("An error occured deleting that note.") }
                     });

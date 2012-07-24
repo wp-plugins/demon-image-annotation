@@ -63,15 +63,15 @@ function getSave() {
 		if ( $user->ID ) {
 			if ( empty( $user->display_name ) )
 				$user->display_name=$user->user_login;
-			$comment_author       = $wpdb->escape($user->display_name);
-			$comment_author_email = $wpdb->escape($user->user_email);
-			$comment_author_url   = $wpdb->escape($user->user_url);
-			if ( current_user_can('unfiltered_html') ) {
-				if ( wp_create_nonce('unfiltered-html-comment_' . $comment_post_ID) != $_POST['_wp_unfiltered_html_comment'] ) {
-					kses_remove_filters();
-					kses_init_filters();
+				$comment_author       = $wpdb->escape($user->display_name);
+				$comment_author_email = $wpdb->escape($user->user_email);
+				$comment_author_url   = $wpdb->escape($user->user_url);
+				if ( current_user_can('unfiltered_html') ) {
+					if ( wp_create_nonce('unfiltered-html-comment_' . $comment_post_ID) != $_POST['_wp_unfiltered_html_comment'] ) {
+						kses_remove_filters();
+						kses_init_filters();
+					}
 				}
-			}
 		}
 		
 		if( (get_option('demon_image_annotation_comments') == '0') ) {
@@ -155,16 +155,14 @@ function getResults() {
 	$result = $wpdb->get_results("SELECT * FROM ".$table_name." WHERE note_img_ID = '".$qsType."' ");
 	
 	//output JSON array
-	echo "[";
-	$next = "";
-	$numItems = count($result);
-	$i = 0;
-	foreach ($result as $topten) {		
+	$json = array();
+	
+	foreach ($result as $row) {		
 		if( (get_option('demon_image_annotation_comments') == '0') ) {
-			$commentApprove = $wpdb->get_var("SELECT comment_approved FROM wp_comments WHERE comment_ID = ".(int)$topten->note_comment_ID);
+			$commentApprove = $wpdb->get_var("SELECT comment_approved FROM wp_comments WHERE comment_ID = ".(int)$row->note_comment_ID);
 			//the image note will auto delete if comment is deleted from admin, 
 			if($commentApprove == "") {
-				$wpdb->query("DELETE FROM ".$table_name." WHERE note_img_ID='".$qsType."' and note_text_ID='".$topten->note_text_ID."'");
+				//$wpdb->query("DELETE FROM ".$table_name." WHERE note_img_ID='".$qsType."' and note_text_ID='".$row->note_text_ID."'");
 			}
 			
 			if(get_option('demon_image_annotation_gravatar_deafult') != '') {
@@ -174,37 +172,50 @@ function getResults() {
 			}
 			
 			if($commentApprove == 1) {
-				echo $next;
 				//add gravatar
-				$notetext = txt2html($topten->note_text);
+				$notetext = txt2html($row->note_text);
+				
 				if( (get_option('demon_image_annotation_gravatar') == '0') ) {
-					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".get_avatar($topten->note_email, 20, $defaultgravatar)." ".$topten->note_author."</div>\", \"commentid\": ".$topten->note_comment_ID."}";
+					$author = "<div class='image-annotate-author'>".get_avatar($row->note_email, 20, $defaultgravatar)." ".$row->note_author."</div>";
 				} else {
-					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".$topten->note_author."</div>\", \"commentid\": ".$topten->note_comment_ID."}";
+					$author = "<div class='image-annotate-author'>".$row->note_author."</div>";
 				}
-			} else {
-				$next = "";
+				$json['top'] = $row->note_top;
+				$json['left'] = $row->note_left;
+				$json['width'] = $row->note_width;
+				$json['height'] = $row->note_height;
+				$json['text'] = $notetext;
+				$json['id'] = $row->note_text_ID;
+				$json['editable'] = true;
+				$json['author'] = $author;
+				$json['commentid'] = $row->note_comment_ID;
+				$data[] = $json;
 			}
 		} else {
-			if($topten->note_approved == 1) {
+			if($row->note_approved == 1) {
 				//add gravatar
-				echo $next;
-				$notetext = txt2html($topten->note_text);
+				$notetext = txt2html($row->note_text);
+				
 				if( (get_option('demon_image_annotation_gravatar') == '0') ) {
-					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".get_avatar($topten->note_email, 20, $defaultgravatar)." ".$topten->note_author."</div>\", \"commentid\": ".$topten->note_comment_ID."}";
+					$author = "<div class='image-annotate-author'>".get_avatar($row->note_email, 20, $defaultgravatar)." ".$row->note_author."</div>";
 				} else {
-					echo "{\"top\": ".(int)$topten->note_top.", \"left\": ".(int)$topten->note_left.", \"width\": ".(int)$topten->note_width.", \"height\": ".(int)$topten->note_height.", \"text\": \"".$notetext."\", \"id\": \"".$topten->note_text_ID."\", \"editable\": true, \"author\": \"<div class='image-annotate-author'>".$topten->note_author."</div>\", \"commentid\": ".$topten->note_comment_ID."}";
-				}	
-			} else {
-				$next = "";
+					$author = "<div class='image-annotate-author'>".$row->note_author."</div>";
+				}
+				$json['top'] = $row->note_top;
+				$json['left'] = $row->note_left;
+				$json['width'] = $row->note_width;
+				$json['height'] = $row->note_height;
+				$json['text'] = $notetext;
+				$json['id'] = $row->note_text_ID;
+				$json['editable'] = true;
+				$json['author'] = $author;
+				$json['commentid'] = $row->note_comment_ID;
+				$data[] = $json;
 			}
 		}
-		$i++;
-		if($i != $numItems) {
-			$next = ",";
-		}
 	};
-	echo "]";
+
+	print json_encode($data);
 }
 
 function html2txt($text) {
