@@ -18,7 +18,6 @@ Some features:
 * Admin page
 * Option to approve, edit amd remove image notes in admin page.
 * Auto insert unique id attribute for all the images for image note.
-* Show notes on other pages such as home and archive.
 * Gravatar in the notes
 * Option to sync with wordpress comments.
 * Option to show thumbnail in comment list.
