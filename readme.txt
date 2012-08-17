@@ -44,6 +44,10 @@ No questions have been asked.
 4. Image annotation list.
 
 == Changelog ==
+= 2.5.1   =
+* Fixed addable for admin only.
+
+
 = 2.5   =
 * Fixed image annotation script.
 * Fixed php JSON data.
