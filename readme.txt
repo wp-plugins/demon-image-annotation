@@ -44,7 +44,7 @@ No questions have been asked.
 4. Image annotation list.
 
 == Changelog ==
-= 2.5.1   =
+= 2.5.2   =
 * Fixed addable for admin only.
 
 

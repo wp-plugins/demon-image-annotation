@@ -1,11 +1,10 @@
-<<<<<<< .mine
 <?php 
 /*
 Plugin Name: Demon Image Annotations
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 Description: 'Allows you to add textual annotations to images by select a region of the image and then attach a textual description, the concept of annotating images with user comments.'
 Author: Demon
-Version: 2.5.1
+Version: 2.5.2
 Author URI: http://www.superwhite.cc
 */
 
@@ -346,5 +345,4 @@ if (is_admin())
 	add_action('admin_head', 'demonimageannotation_admin_head');
 	add_action('admin_menu', 'demonimageannotation_admin_actions');
 }
->>>>>>> .r586888
 ?>
