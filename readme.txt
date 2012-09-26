@@ -3,7 +3,7 @@ Contributors: demonisblack
 Tags: comment,comments,image,images,note,notes,annotation,image annotation,dannychoo,facebook,tag,flickr
 Requires at least: 2.5
 Tested up to: 3.4
-Stable tag: 2.5.3
+Stable tag: 2.5.4
 
 Allows you to add textual annotations to images by select a region of the image and then attach a textual description.
 
@@ -44,9 +44,12 @@ No questions have been asked.
 4. Image annotation list.
 
 == Changelog ==
+= 2.5.4   =
+* Thumbnail resize fixed.
+* Thumbnail preloader.
+
 = 2.5.2   =
 * Fixed addable for admin only.
-
 
 = 2.5   =
 * Fixed image annotation script.
@@ -57,18 +60,14 @@ No questions have been asked.
 = 2.4.8   =
 * Fixed MD5 not working.
 
-
 = 2.4.7   =
 * Fixed bugs.
-
 
 = 2.4.6   =
 * Fixed jquery conflict.
 
-
 = 2.4.5   =
 * Fixed missing add button.
-
 
 = 2.4.4   =
 * Added approve and unapprove button for selected image notes.

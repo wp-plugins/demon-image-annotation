@@ -287,13 +287,12 @@
 
 /*image note comments thumbnail*/
 .image-note-thumbnail {
-	margin: 0 10px 0 0;
-	position: relative;
-	width: 55px;
-	height: 55px;
+	width:55px; height:55px;overflow: hidden; border:3px solid #666;
 	border: solid 3px #CCC;
 	-moz-border-radius: 10px;
 	border-radius: 10px;
+	position: relative;
+	background: url(../images/ajax-loader.gif) no-repeat center center #FFFFFF;
 }
 
 .image-note-thumbnail:hover {
@@ -302,13 +301,8 @@
 	border-radius: 10px;
 }
 
-.image-note-thumbnail img{
-	width: 85px;
-    position: absolute;
-    clip: rect(0 60px 60px 5px);
-    left: -5px;
-	max-width:85px;
-	max-height:55px;
-	-moz-border-radius: 10px;
-	border-radius: 10px;
+.mask{
+	width:500%;height: 500%;
 }
+
+.image-note-thumbnail img{position: relative; margin-left:0px;}

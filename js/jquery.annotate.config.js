@@ -99,6 +99,7 @@
 		$.fn.initAnnotate.commentThumbnail();
     };
 	
+	
 	$.fn.initAnnotate.commentThumbnail = function() {
 		$('div').each(function() {
 			var divid = $(this).attr("id");
@@ -107,11 +108,14 @@
 				var getimgsrc = $.fn.initAnnotate.imageSource(divid.substring(8,divid.length));
 				if(getimgsrc != "") {
 					$(this).remove("noted");
-					$(this).html('<div class="image-note-thumbnail"><a href="#' + divid.substring(8,divid.length) + '"><img src="' + getimgsrc + '" /></a></div>');
+					$(this).html('<div class="image-note-thumbnail"><a href="#' + divid.substring(8,divid.length) + '"><div class="mask"><img src="' + getimgsrc + '" /></div></a></div>');
+					$.fn.initAnnotate.resizeImg($(this));
 				}
 			}
 		});
 	}
+	
+	
 	
 	//get image source from post for thumbnail
 	$.fn.initAnnotate.imageSource = function(id) {
@@ -124,4 +128,67 @@
 		});
 		return idreturn;
 	}
+	
+	$.fn.initAnnotate.resize = function(obj, input) {
+		var ceil=Math.ceil;
+		if(input==null)input=200;
+		var w_n=input,h_n=input;
+		$(obj).each(function(){
+			var w=$(obj).width(),h=$(obj).height();
+			if(h>w)h_n=ceil(w/h*input);
+			else w_n=ceil(h/w*input);
+			$(obj).css({width:h_n,height:w_n})
+		})
+	};
+	
+	
+	$.fn.initAnnotate.resizeImg = function(obj) {
+		var target = $(obj).find('.mask')
+		var src = $(obj).find('img').attr('src');
+		var maxWidth = 55;
+		var maxHeight = 55;
+		
+		$(obj).find('.mask').empty();
+		var img = new Image();
+		img.onload = function() {
+			var width = this.width
+			var height = this.height
+			
+			var finalw = width;
+			var finalh = height;
+			var ratio = 0;
+			
+			if(width > height) {
+				while(finalh > maxHeight){
+					 finalh--
+				 }
+				 ratio = finalh / height;
+			} else {
+				while(finalw > maxWidth){
+					 finalw--
+				 }
+				 ratio = finalw / width;
+			}
+			
+			var imgWidth = width * ratio;
+			var imgHeight = finalh;
+			
+			$(this).css('display','none');
+			$.fn.initAnnotate.resize($(this),imgWidth);
+			//$(this).resize(imgWidth);
+			imgHeight = $(this).css('height');
+			
+			var marLeft = -((imgWidth - maxWidth) / 2);
+			var marTop = -((imgHeight - maxHeight) / 2);
+			
+			$(this).css('margin-left',marLeft + 'px');
+			$(this).css('margin-top', marTop + 'px');
+			$(this).fadeTo('slow', 1, function() {
+			});
+			
+			$(target).append(this);
+		}
+		img.src = src;
+	};
+	
 })(jQuery);
