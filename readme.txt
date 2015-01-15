@@ -17,14 +17,7 @@ Integration with JQuery Image Annotation from Chris (http://www.flipbit.co.uk/jq
 
 <h3>demon Image Annotation Needs Your Support</h3>
 
-It is hard to continue development and support for this free plugin without contributions from users like you. If you enjoy using demon Image Annotation and find it useful, please consider making a donation. Your donation will help encourage and support the plugin's continued development and better user support.
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-<input type="hidden" name="cmd" value="_s-xclick">
-<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----MIIHVwYJKoZIhvcNAQcEoIIHSDCCB0QCAQExggEwMIIBLAIBADCBlDCBjjELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQwEgYDVQQKEwtQYXlQYWwgSW5jLjETMBEGA1UECxQKbGl2ZV9jZXJ0czERMA8GA1UEAxQIbGl2ZV9hcGkxHDAaBgkqhkiG9w0BCQEWDXJlQHBheXBhbC5jb20CAQAwDQYJKoZIhvcNAQEBBQAEgYCkOAgoWoOdTfhWC3DjGsFTnnzgh6QhsueXpalKAjgTfotBYvAMkrSfwSfa7qW1IfAcApQiEel2+rea8LEqZftAZClAVhEGoimhGiO0hFHs8dFsgnUCcoziIc34apZJCgFOLApDod/NMohxigH2NYYeaqYjsenF6KEL8cWmgrJpvjELMAkGBSsOAwIaBQAwgdQGCSqGSIb3DQEHATAUBggqhkiG9w0DBwQIWqGJLnOcrVOAgbAku9DbBcbmNaJ3ztYSsZoI+2jfn1pPteWVwth1CyickBFVZtCZmm9iTa4QVaQrbwdmRlgPXLCNwnptyJG4/ZmcwmUGndl0bIscB5F45xAxqHLplqBtH3uWMEACEZP7DmVwa9dwWcTLee6GpGoSRU+InbS+VO26qUFIuCe21HPff08f31egCjlpGkv8ThszbC9gD8N6dLThml/LO/6U7HtQgevDUxbZPBx0EqkOS9JV1KCCA4cwggODMIIC7KADAgECAgEAMA0GCSqGSIb3DQEBBQUAMIGOMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxFDASBgNVBAoTC1BheVBhbCBJbmMuMRMwEQYDVQQLFApsaXZlX2NlcnRzMREwDwYDVQQDFAhsaXZlX2FwaTEcMBoGCSqGSIb3DQEJARYNcmVAcGF5cGFsLmNvbTAeFw0wNDAyMTMxMDEzMTVaFw0zNTAyMTMxMDEzMTVaMIGOMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxFDASBgNVBAoTC1BheVBhbCBJbmMuMRMwEQYDVQQLFApsaXZlX2NlcnRzMREwDwYDVQQDFAhsaXZlX2FwaTEcMBoGCSqGSIb3DQEJARYNcmVAcGF5cGFsLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAwUdO3fxEzEtcnI7ZKZL412XvZPugoni7i7D7prCe0AtaHTc97CYgm7NsAtJyxNLixmhLV8pyIEaiHXWAh8fPKW+R017+EmXrr9EaquPmsVvTywAAE1PMNOKqo2kl4Gxiz9zZqIajOm1fZGWcGS0f5JQ2kBqNbvbg2/Za+GJ/qwUCAwEAAaOB7jCB6zAdBgNVHQ4EFgQUlp98u8ZvF71ZP1LXChvsENZklGswgbsGA1UdIwSBszCBsIAUlp98u8ZvF71ZP1LXChvsENZklGuhgZSkgZEwgY4xCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEUMBIGA1UEChMLUGF5UGFsIEluYy4xEzARBgNVBAsUCmxpdmVfY2VydHMxETAPBgNVBAMUCGxpdmVfYXBpMRwwGgYJKoZIhvcNAQkBFg1yZUBwYXlwYWwuY29tggEAMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQEFBQADgYEAgV86VpqAWuXvX6Oro4qJ1tYVIT5DgWpE692Ag422H7yRIr/9j/iKG4Thia/Oflx4TdL+IFJBAyPK9v6zZNZtBgPBynXb048hsP16l2vi0k5Q2JKiPDsEfBhGI+HnxLXEaUWAcVfCsQFvd2A1sxRr67ip5y2wwBelUecP3AjJ+YcxggGaMIIBlgIBATCBlDCBjjELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQwEgYDVQQKEwtQYXlQYWwgSW5jLjETMBEGA1UECxQKbGl2ZV9jZXJ0czERMA8GA1UEAxQIbGl2ZV9hcGkxHDAaBgkqhkiG9w0BCQEWDXJlQHBheXBhbC5jb20CAQAwCQYFKw4DAhoFAKBdMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTE1MDExNTAzMzYyOFowIwYJKoZIhvcNAQkEMRYEFAdCIXoIKYqGFVWnOjHugenabeq/MA0GCSqGSIb3DQEBAQUABIGAG5+HTA/29HGLNSJb3M81yNRqP15UWdzyfu05lF0s2Ru2xdNNNy92p8hToi8QL2EixZWeKjL0OMTS2yq09OCjQ+g5a0czwaTifGcrDGn2DvzKTRCz9cikKPHs39EAe+U3cZnL8jENtrvIueFD08Ho5MvL3jg+i0b2VW8AE6/8ruI=-----END PKCS7-----
-">
-<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
-</form>
+It is hard to continue development and support for this free plugin without contributions from users like you. If you enjoy using demon Image Annotation and find it useful, please consider making a donation. Your donation will help encourage and support the plugin's continued development and better user support. <a href="https://www.paypal.com/my/cgi-bin/webscr?cmd=_flow&SESSION=7-TXw7mUZ80169sR8e_Sdrh3c9R2MZ2tqOAN9-DVktIOyjfMEJX7inyNCCO&dispatch=5885d80a13c0db1f8e263663d3faee8d66f31424b43e9a70645c907a6cbd8fb4">Donate</a>
 
 <h3>Some features:</h3>
 
@@ -53,10 +46,10 @@ It is hard to continue development and support for this free plugin without cont
 	<li>
 		<p>First enter div wrapper <strong>id</strong> or <strong>class</strong> in settings where your post content appear, or else the plugin can't find the wrapper to start.</p>
 		<strong>Example (.entrybody)</strong><br />
-		<code>
-		&lt;div class="entrybody&gt;<br />
-		&nbsp;&nbsp;&nbsp; &lt;?php the_content(); ?&gt;<br />
-		&lt;/div&gt;</code><br /><br />
+		<pre>
+		<div class="entrybody><br />
+		    <?php the_content(); ?><br />
+		</div></pre>
 	</li>
 	
 	<li>
@@ -71,9 +64,9 @@ It is hard to continue development and support for this free plugin without cont
 		- All the images must have unique and different id or else you will get the same comments.
 		</p>
 		<strong>Example (img-4774005463)</strong><br />
-		<code>
+		<pre>
 		&lt;img id=&quot;img-4774005463&quot; src=&quot;http://farm5.static.flickr.com/4121/4774005463_3837b6de44_o.jpg&quot; width=&quot;900&quot; height=&quot;599&quot; alt=&quot;Image Annotation Plugin&quot; /&gt;
-		</code>
+		</pre>
 		<br /><br />
 	</li>
 	
@@ -103,9 +96,9 @@ It is hard to continue development and support for this free plugin without cont
 		Add an addable attribute with value “false” to disable the add note button, but image notes still viewable.<br/>
 		Login User who can Moderate Comments still able to see Add button option.
 		</p>
-		<code>
+		<pre>
 		&lt;img id=&quot;img-4774005463&quot; addable=&quot;false&quot; src=&quot;http://farm5.static.flickr.com/4121/4774005463_3837b6de44_o.jpg&quot; width=&quot;900&quot; height=&quot;599&quot; alt=&quot;Image Annotation Plugin&quot; /&gt;
-		</code>
+		</pre>
 		<br /><br />
 	</li>
 	
