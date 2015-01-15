@@ -88,7 +88,7 @@ It is hard to continue development and support for this free plugin without cont
 		</p>
 		<p>Pls note if you switch the option, the comments added with previous option will not load.</p>
 	</li>
-</ol><br/><br/>
+</ol>
 <h3>Usage:</h3>
 <ol>
 	<li>
