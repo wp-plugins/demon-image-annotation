@@ -1,14 +1,20 @@
 <?php
+
+if ( current_user_can('manage_options') ) {
+	$manage = true;
+}
+
+//*************** Table ***************
 if( ! class_exists( 'WP_List_Table' ) ) {
     require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 }
 
-class My_Example_List_Table extends WP_List_Table {
+class Image_Annotation_List_Table extends WP_List_Table {
     function __construct(){
 		global $status, $page;
 			parent::__construct( array(
-				'singular'  => __( 'note', 'myannotatetable' ),     //singular name of the listed records
-				'plural'    => __( 'notes', 'myannotatetable' ),   //plural name of the listed records
+				'singular'  => __( 'note', 'imageannotatetable' ),     //singular name of the listed records
+				'plural'    => __( 'notes', 'imageannotatetable' ),   //plural name of the listed records
 				'ajax'      => false        //does this table support ajax?
 	
 		) );
@@ -21,33 +27,33 @@ class My_Example_List_Table extends WP_List_Table {
   function column_default( $item, $column_name ) {
     switch( $column_name ) { 
         case 'note_img_ID':
-        case 'note_comment_ID':
-        case 'note_top':
-        case 'note_left':
-		case 'note_width':
-		case 'note_height':
+			return $item->$column_name;
 		case 'note_text':
-            return $item->$column_name;
+            return '<strong>Submitted on :</strong>'.date( 'y/m/d g:i A', strtotime($item->note_date)).'<br/>'.nl2br($item->$column_name);
 		case 'note_author':
-			return $item->$column_name.'<br />'. $item->note_email;
+			return '<strong>'.get_avatar($row->note_email, 30, '').$item->$column_name.'</strong><br /><a href="mailto:'. $item->note_email.'">'. $item->note_email.'</a>';
 		case 'note_response':
-		if( (get_option('demon_image_annotation_comments') == '0') ) {
-			global $wpdb;
-			$list = $wpdb->get_results("select * from " . $wpdb->prefix . "comments where comment_ID ='".$item->note_comment_ID."' and comment_content = '".$item->note_text."'");
-			$count;
-			foreach ($list as $t) {
-				$comment_approved = $t->comment_approved;
-				$post = get_post($t->comment_post_ID);
-				$posttitle = $post->post_title;
-				return $posttitle;
-				$count ++;
+			if( (get_option('demon_image_annotation_comments') == '0') ) {
+				global $wpdb;
+				$list = $wpdb->get_results("select * from " . $wpdb->prefix . "comments where comment_ID ='".$item->note_comment_ID."' and comment_content = '".$item->note_text."'");
+				$count;
+				foreach ($list as $t) {
+					$comment_approved = $t->comment_approved;
+					$post = get_post($t->comment_post_ID);
+					$posttitle = $post->post_title;
+					return $posttitle;
+					$count ++;
+				}
 			}
 			if($count == 0) {
-				return 'No sync with wordpress comment';
+				$post = get_post($item->note_post_ID);
+				$posttitle = $post->post_title;
+				if($posttitle==''){
+					return 'Not sync with wordpress comment';
+				}else{
+					return $posttitle;	
+				}
 			}
-		} else {
-			return 'No sync with wordpress comment';
-		}
         default:
             return print_r( $item, true ) ; //Show the whole array for troubleshooting purposes
 		}
@@ -57,8 +63,7 @@ class My_Example_List_Table extends WP_List_Table {
 	  $sortable_columns = array(
 		'note_img_ID'  => array('note_img_ID',false),
 		'note_author' => array('note_author',false),
-		'note_text'   => array('note_text',false),
-		'note_response'  => array('note_response',false)
+		'note_text'   => array('note_text',false)
 	  );
 	  return $sortable_columns;
 	}
@@ -66,15 +71,11 @@ class My_Example_List_Table extends WP_List_Table {
 	function get_columns(){
 			$columns = array(
 				'cb'        => '<input type="checkbox" />',
-				'note_img_ID' => __( 'IMG ID', 'myannotatetable' ),
-				'note_author' => __( 'Author', 'myannotatetable' ),
-				'note_text'    => __( 'Text', 'myannotatetable' ),
-				'note_top'    => __( 'Top', 'myannotatetable' ),
-				'note_left' => __( 'Left', 'myannotatetable' ),
-				'note_width' => __( 'Width', 'myannotatetable' ),
-				'note_height' => __( 'Height', 'myannotatetable' ),
-				'note_response' => __( 'In Response to', 'myannotatetable' ),
-				'note_action' => __( 'Action', 'myannotatetable' )
+				'note_img_ID' => __( 'IMG ID', 'imageannotatetable' ),
+				'note_author' => __( 'Author', 'imageannotatetable' ),
+				'note_text'    => __( 'Text', 'imageannotatetable' ),
+				'note_response' => __( 'In Response to', 'imageannotatetable' ),
+				'note_action' => __( 'Action', 'imageannotatetable' )
 			);
 			 return $columns;
 		}
@@ -93,15 +94,30 @@ class My_Example_List_Table extends WP_List_Table {
 	function column_note_action($item){
 		if( (get_option('demon_image_annotation_comments') == '0') ) {
 			//sync with wordpress comments
-			if($item->comment_approved == 1) {
+			if($item->comment_approved == '1') {
 				$condition = 'Unapprove';
 				$text = 'Approve';
-			} else {
+			} else if($item->comment_approved == '0') {
 				$condition = 'Approve';
 				$text = 'Unapprove';
+			} else if($item->comment_approved == 'trash') {
+				$condition = 'Restore';
+				$text = 'Trash';
 			}
-		} else {
-			if($item->note_approved == 1) {
+			
+			//not sycn or sync but with old notes
+			if($item->comment_approved == ''){
+				$condition = 'Notsync';
+				if($item->note_comment_ID == 0){
+					//deleted comments
+					$text = 'Not sync with wordpress comment';
+				}else{
+					//not Sycn
+					$text = '<span style="color:#a00">Deleted Comment</span>';
+				}
+			}
+		}else{
+			if($item->note_approved == '1') {
 				$condition = 'Unapprove';
 				$text = 'Approve';
 			} else {
@@ -109,19 +125,65 @@ class My_Example_List_Table extends WP_List_Table {
 				$text = 'Unapprove';
 			}
 		}
-	  $actions = array(
-			$condition  => sprintf('<a href="?page=%s&action=%s&note=%s&tab=%s&paged=%s">'.$condition.'</a>',$_REQUEST['page'],strtolower($condition),$item->note_ID, $_REQUEST['tab'], $_REQUEST['paged']),
-			'edit'      => sprintf('<a href="?page=%s&action=%s&note=%s&tab=%s&paged=%s">Edit</a>',$_REQUEST['page'],'edit',$item->note_ID, $_REQUEST['tab'], $_REQUEST['paged']),
-			'delete'    => sprintf('<a href="?page=%s&action=%s&note=%s&tab=%s&paged=%s">Delete</a>',$_REQUEST['page'],'delete', $item->note_ID, $_REQUEST['tab'], $_REQUEST['paged']),
-		);
-	  return sprintf('%1$s %2$s', $text, $this->row_actions($actions) );
+		
+		if ( current_user_can('moderate_comments') ) {
+			$moderate = true;
+		}
+	  	if($moderate){
+		  if($condition == 'Notsync'){
+			  $actions = array(
+					'delete'    => sprintf('<a href="?page=%s&action=%s&note=%s&paged=%s">Delete</a>',$_REQUEST['page'],'delete', $item->note_ID, $_REQUEST['paged']),
+				);
+		}else{
+			$actions = array(
+				$condition  => sprintf('<a href="?page=%s&action=%s&note=%s&paged=%s">'.$condition.'</a>',$_REQUEST['page'],strtolower($condition),$item->note_ID, $_REQUEST['paged']),
+				'edit'      => sprintf('<a href="?page=%s&action=%s&note=%s&paged=%s">Edit</a>',$_REQUEST['page'],'edit',$item->note_ID, $_REQUEST['paged']),
+				'delete'    => sprintf('<a href="?page=%s&action=%s&note=%s&paged=%s">Delete</a>',$_REQUEST['page'],'delete', $item->note_ID, $_REQUEST['paged']),
+			);
+		}
+			return sprintf('%1$s %2$s', $text, $this->row_actions($actions) );
+	  }else{
+			return sprintf('%1$s %2$s', $text, $this->row_actions($actions) );  
+	  }
+	}
+	
+	function single_row( $a_comment ) {
+			global $comment;
+			$comment = $a_comment;
+			$condition;
+			if( (get_option('demon_image_annotation_comments') == '0') ) {
+				//sync with wordpress comments
+				if($comment->comment_approved == '1') {
+					$condition = 'approved';
+				} else if($comment->comment_approved == '0') {
+					$condition = 'unapproved';
+				} else if($comment->comment_approved == 'trash') {
+					$condition = 'deleted';
+				}
+				
+				//not sycn or sync but with old notes
+				if($comment->comment_approved == ''){
+					$condition = 'deleted';
+				}
+			}else{
+				if($comment->note_approved == '1') {
+					$condition = 'approved';
+				} else {
+					$condition = 'unapproved';
+				}
+			}
+			$the_comment_class = join( ' ', get_comment_class( $condition ) );
+			
+			echo "<tr id='comment-$comment->note_ID' class='$the_comment_class'>";
+			echo $this->single_row_columns( $comment );
+			echo "</tr>\n";
 	}
 	
 	function get_bulk_actions() {
 		$actions = array(
-			'delete' => __( 'Delete' , 'myannotatetable'),
-			'approve' => __( 'Approve' , 'myannotatetable'),
-			'unapprove' => __( 'Unapprove' , 'myannotatetable')
+			'delete' => __( 'Delete' , 'imageannotatetable'),
+			'approve' => __( 'Approve' , 'imageannotatetable'),
+			'unapprove' => __( 'Unapprove' , 'imageannotatetable')
 		);
 	
 		return $actions;
@@ -151,6 +213,7 @@ class My_Example_List_Table extends WP_List_Table {
 				}
 				//delete note
 				$wpdb->query( "DELETE FROM ".$table_note." WHERE note_ID = $id");
+				$wpdb->query( "DELETE FROM wp_comments WHERE comment_ID = ".$comment_id);
 			}
 			echo '<div class="updated"><p><strong>Images Note Deleted.</strong></p></div>';
 		} else if ( 'approve' === $this->current_action() ) {
@@ -171,6 +234,24 @@ class My_Example_List_Table extends WP_List_Table {
 				$wpdb->query( "UPDATE ".$table_note." SET `note_approved` = '1' where note_ID = $id");
 			}
 			echo '<div class="updated"><p><strong>Images Note Approved.</strong></p></div>';
+		} else if ( 'restore' === $this->current_action() ) {
+			foreach ( $noteid as $id ) {
+				$id = absint( $id );
+				if( (get_option('demon_image_annotation_comments') == '0') ) {
+					//find comment id and comment text
+					$query = "SELECT * from ".$table_note." where note_ID =".$id;
+					$result = $wpdb->get_results($query);
+					foreach ($result as $r) {
+						$comment_id = $r->note_comment_ID;
+						$content = $r->note_text;
+						//approve comment
+						$wpdb->query("UPDATE ".$table_comment." SET comment_approved = '1' WHERE comment_ID = ".$comment_id." and comment_content = '".$content."'");
+					}
+				}
+				//approve note
+				$wpdb->query( "UPDATE ".$table_note." SET `note_approved` = '1' where note_ID = $id");
+			}
+			echo '<div class="updated"><p><strong>Images Note Restored.</strong></p></div>';
 		} else if ( 'unapprove' === $this->current_action() ) {
 			foreach ( $noteid as $id ) {
 				$id = absint( $id );
@@ -200,10 +281,9 @@ class My_Example_List_Table extends WP_List_Table {
 			if($_POST['update_single_note'] == "yes") {
 				$imgid = $_POST['note_ID'];
 				$commentid = $_POST['note_comment_ID'];
-				$note_text_old = $_POST['note_text_old'];
 				
 				if( (get_option('demon_image_annotation_comments') == '0') ) {
-					$wpdb->query("UPDATE ".$table_comment." SET comment_content = '".$_POST['note_text']."' WHERE comment_ID = ".$commentid." and comment_content = '".$note_text_old."'");
+					$wpdb->query("UPDATE ".$table_comment." SET comment_content = '".$_POST['note_text']."', comment_author = '".$_POST['note_author']."', comment_author_email = '".$_POST['note_email']."' WHERE comment_ID = ".$commentid);
 				}
 				$query = "UPDATE `".$table_note."` SET
 									`note_author` = '".$_POST['note_author']."',
@@ -213,7 +293,7 @@ class My_Example_List_Table extends WP_List_Table {
 									`note_width` = '".$_POST['note_width']."',
 									`note_height` = '".$_POST['note_height']."',
 									`note_text` = '".$_POST['note_text']."'	
-									where note_ID = '".$imgid."'		
+									where note_ID = '".$imgid."'
 								";
 				$wpdb->query($query);
 			}
@@ -221,9 +301,14 @@ class My_Example_List_Table extends WP_List_Table {
 	}
 	
 	function column_cb($item) {
-		return sprintf(
-			'<input type="checkbox" name="note[]" value="%s" />', $item->note_ID
-		);
+		if ( current_user_can('moderate_comments') ) {
+			$moderate = true;
+		}
+		if($moderate){
+			return sprintf(
+				'<input type="checkbox" name="note[]" value="%s" />', $item->note_ID
+			);
+		}
 	}
 	
 	function editNote() {
@@ -240,19 +325,85 @@ class My_Example_List_Table extends WP_List_Table {
 				$result = $wpdb->get_results($query);
 				?>
                 <div class="wrap">
-				<form name="dia_update_form" method="post" action="<?php echo sprintf('?page=%s&action=%s&tab=%s',$_REQUEST['page'],'update', $_REQUEST['tab']); ?>">
+				<form name="dia_update_form" method="post" action="<?php echo sprintf('?page=%s&action=%s&paged=%s',$_REQUEST['page'],'update',$_REQUEST['paged']); ?>">
           
 				<input type="hidden" name="update_single_note" value="yes">
 				<?php wp_nonce_field('imagenotesactionupdate') ?>
                 
 				<?php
+				//print_r($result);
 				foreach ($result as $r) {
 					echo '<table class="widefat" width="100%">';
 					echo '<thead><tr>';
-					echo '<th width="150">'.$r->note_img_ID.'<input type="hidden" name="note_text_old" value="'.$r->note_text.'"><input type="hidden" name="note_ID" value="'.$r->note_ID.'" /><input type="hidden" name="note_comment_ID" value="'.$r->note_comment_ID.'" /></th>';
-					echo '<th></th>';
+					echo '<th colspan="2">Edit Image Note : '.$r->note_img_ID.'<input type="hidden" name="note_ID" value="'.$r->note_ID.'" /><input type="hidden" name="note_comment_ID" value="'.$r->note_comment_ID.'" /></th>';
 					echo '</tr></thead>';
 					echo '<tbody>';
+					echo '<tr>';
+					echo '<td width="120">Image Preview</td>';
+					echo '<td>';
+					
+					$postid = $r->note_post_ID;
+					
+					if($postid == 0){
+						//grab post ID from comment
+						global $wpdb;
+						$list = $wpdb->get_results("select * from " . $wpdb->prefix . "comments where comment_ID ='".$r->note_comment_ID."' and comment_content = '".$r->note_text."'");
+						foreach ($list as $t) {
+							$postid = $t->comment_post_ID;
+						}
+					}
+					if($postid == 0){
+						//grab post ID from note image ID
+						$postid = dia_getBetween('-','-',$r->note_img_ID);
+					}
+					
+					if($postid != 0){
+						//find all images
+						$post = get_post($postid);
+						$postcontent = $post->post_content;
+						preg_match_all('/<img[^>]+>/i', $postcontent, $matches);
+						//print_r($matches);
+						
+						//find id and src
+						$img = array();
+						foreach( $matches[0] as $img_tag){
+							preg_match_all('/(id|src)=("[^"]*")/i',$img_tag, $img[$img_tag]);
+						}
+						//print_r($img);
+						
+						$imgid;
+						$imgsrc;
+						$count;
+						foreach( $img as $img_tag){
+							$first = trim($img_tag[0][0]);
+							$second = trim($img_tag[0][1]);
+							
+							if(strpos($first,'id=')!==false){
+								$imgid = substr($first, 4, -1);
+								$imgsrc = substr($second, 5, -1);
+							}else if(strpos($first,'src=')!==false){
+								$imgsrc = substr($first, 5, -1);
+								$imgid=md5($imgsrc);
+								$imgid='img-'.$postid.'-'.substr($imgid,0,10);
+							}
+							
+							if($r->note_img_ID == $imgid){
+								$notelink = sprintf('?page=%s&action=%s&note=%s&paged=%s"',$_REQUEST['page'],strtolower($condition),$item->note_ID, $_REQUEST['paged']);
+								echo '<div id="dia-admin-holder" data-note-ID="'.$r->note_ID.'" date-note-link="'.$notelink.'">';
+								echo '<img id="'.$imgid.'" addable="false" src="'.$imgsrc.'">';	
+								echo '</div>';
+							}
+							$count++;
+						}
+						if($count==0){
+							echo 'No preview image';
+						}
+					}else{
+						echo 'No preview image';
+					}
+										
+					echo '</td>';
+					echo '</tr>';
 					echo '<tr>';
 					echo '<td>Author</td>';
 					echo '<td><input name="note_author" type="text" size="40" value="'.$r->note_author.'" /></td>';
@@ -261,6 +412,7 @@ class My_Example_List_Table extends WP_List_Table {
 					echo '<td>Email</td>';
 					echo '<td><input name="note_email" type="text" size="40" value="'.$r->note_email.'" /></td>';
 					echo '</tr>';
+					
 					echo '<tr>';
 					echo '<td>Top</td>';
 					echo '<td><input name="note_top" type="text" size="5" value="'.$r->note_top.'" /></td>';
@@ -283,11 +435,12 @@ class My_Example_List_Table extends WP_List_Table {
 					echo '</tr>';
 					echo '<tr>';
 					echo '<td></td>';
-					echo '<td><input type="submit" name="update" value="update" class="button-secondary action" /><input type="button" name="cancel" value="cancel"  class="button-secondary action" onclick="window.location = \'?page='.$_REQUEST['page'].'&tab='.$_REQUEST['tab'].'\';" /></td>';
+					echo '<td><input type="submit" name="update" value="update" class="button-primary action" /><input type="button" name="cancel" value="cancel"  class="button-secondary action" onclick="window.location = \'?page='.$_REQUEST['page'].'&paged='.$_REQUEST['paged'].'\';" /></td>';
 					echo '</tr>';
 				}
 				echo '</tbody>';
 				echo "</table>";
+				
 				?></form></div><?php
 			}
 		}
@@ -309,9 +462,9 @@ class My_Example_List_Table extends WP_List_Table {
 			//check is sync with wordpress comment
 			if( (get_option('demon_image_annotation_comments') == '0') ) {
 				//with wordpress comment
-				$query = "SELECT ".$table_note.".*, ".$table_comment.".comment_approved FROM ".$table_note." LEFT OUTER JOIN ".$table_comment." on ".$table_comment.".comment_ID = ".$table_note.".note_comment_ID";
+				$query = "SELECT ".$table_note.".*, ".$table_comment.".comment_approved FROM ".$table_note." LEFT OUTER JOIN ".$table_comment." on ".$table_comment.".comment_ID = ".$table_note.".note_comment_ID WHERE ".$table_note.".note_comment_ID != 0";
 			} else {
-				$query = "SELECT * FROM ".$table_note;
+				$query = "SELECT * FROM ".$table_note." WHERE ".$table_note.".note_comment_ID = 0";
 			}
 		/* -- Ordering parameters -- */
 			//Parameters that are going to be used to order the result
@@ -358,30 +511,66 @@ class My_Example_List_Table extends WP_List_Table {
 
 ?>
 
-<?php //tab settings 
-	$tab = isset($_REQUEST['tab']) ? trim($_REQUEST['tab']) : 'settings';
+<?php 
+//*************** JS Notice ***************
+	$jsupdate = isset($_REQUEST['jsupdate']) ? trim($_REQUEST['jsupdate']) : '';
+	if($jsupdate == 'delete'){
+		echo '<div class="updated"><p><strong>Images Note Deleted.</strong></p></div>';
+	}else if($jsupdate == 'update'){
+		echo '<div class="updated"><p><strong>Images Note Updated.</strong></p></div>';		
+	}
+	
+	//tab settings 
+	$page = isset($_REQUEST['page']) ? trim($_REQUEST['page']) : 'imagenotes';
+	if(!$manage){
+		$page = 'imagenotes';
+	}
 	global $wpdb;
 	$table_name = $wpdb->prefix . "demon_imagenote";
 ?>
- <div class="wrap">
+
+<?php 
+//*************** Header ***************
+?>
+<div class="wrap">
 <?php  echo "<h2>" . __( 'demon-Image-Annotation Settings', 'dia_trdom' ) . "</h2>"; ?>
- Finally got time to update this plugin! ENJOY!<br />Visit my site for more update. <a href="http://www.superwhite.cc" target="_blank">http://www.superwhite.cc</a><br />
+Visit my site for more update. <a href="http://www.superwhite.cc" target="_blank">http://www.superwhite.cc</a><br />
+If you enjoy using demon Image Annotation and find it useful, please consider making a donation. 
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
+">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+
 <h2>
-<a href="<?php echo str_replace( '%7E', '~', $_SERVER['REQUEST_URI']); ?>&tab=settings" class="nav-tab<?php $tab == 'settings' ? print " nav-tab-active" : '' ?>">Settings</a>
-<a href="<?php echo str_replace( '%7E', '~', $_SERVER['REQUEST_URI']); ?>&tab=imagenotes" class="nav-tab<?php $tab == 'imagenotes' ? print " nav-tab-active" : ''; ?>">Image Notes</a>
+<?php
+	$pluginurl = 'admin.php?page=';
+?>
+
+<?php if($manage){?>
+	<a href="<?php echo $pluginurl.'dia_image_notes'; ?>" class="nav-tab<?php $page == 'dia_image_notes' ? print " nav-tab-active" : ''; ?>">Image Notes</a>
+    <a href="<?php echo $pluginurl.'dia_settings'; ?>" class="nav-tab<?php $page == 'dia_settings' ? print " nav-tab-active" : '' ?>">Settings</a>
+    <a href="<?php echo $pluginurl.'dia_usage'; ?>" class="nav-tab<?php $page == 'dia_usage' ? print " nav-tab-active" : '' ?>">Usage</a>
+<?php }?>
+<div style="border-top:#CCC solid 1px; width:100%;"></div>
 </h2>
 </div>
-<?php if($tab == 'settings') {
-		
+
+
+<?php if($page == 'dia_settings') {
+//*************** Settings ***************
+
 		//admin settings
 		if($_POST['dia_hidden'] == 'Y') {
 			//show on home page
-			$dia_homepage = $_POST['dia_homepage'];
+			/*$dia_homepage = $_POST['dia_homepage'];
 			update_option('demon_image_annotation_homepage', $dia_homepage);
 			
 			//show on archive page
 			$dia_archive = $_POST['dia_archive'];
-			update_option('demon_image_annotation_archive', $dia_archive);
+			update_option('demon_image_annotation_archive', $dia_archive);*/
 			
 			//show on pages
 			$dia_pages = $_POST['dia_pages'];
@@ -411,11 +600,15 @@ class My_Example_List_Table extends WP_List_Table {
 			$dia_gravatardefault = $_POST['dia_gravatardefault'];
 			update_option('demon_image_annotation_gravatar_deafult', $dia_gravatardefault);
 			
+			//auto approve comment
+			$dia_autoapprove = $_POST['dia_autoapprove'];
+			update_option('demon_image_annotation_autoapprove', $dia_autoapprove);
+			
 			//wordpress comment
 			$dia_comments = $_POST['dia_comments'];
 			update_option('demon_image_annotation_comments', $dia_comments);
 			
-			//auto insert image id
+			//auto insert image id attribute
 			$dia_autoimageid = $_POST['dia_autoimageid'];
 			update_option('demon_image_annotation_autoimageid', $dia_autoimageid);
 			
@@ -423,17 +616,21 @@ class My_Example_List_Table extends WP_List_Table {
 			$dia_mouseoverdesc = $_POST['dia_mouseoverdesc'];
 			update_option('demon_image_annotation_mouseoverdesc', $dia_mouseoverdesc);
 			
+			//link
+			$dia_linkoption = $_POST['dia_linkoption'];
+			update_option('demon_image_annotation_linkoption', $dia_linkoption);
+			
 			//link desc
 			$dia_linkdesc = $_POST['dia_linkdesc'];
 			update_option('demon_image_annotation_linkdesc', $dia_linkdesc);
 			
-			//post ID
-			$dia_postid = $_POST['dia_postid'];
-			update_option('demon_image_annotation_postid', $dia_postid);
+			//mouseover text
+			$dia_clickable_text = $_POST['dia_clickable_text'];
+			update_option('demon_image_annotation_clickable_text', $dia_clickable_text);
 			
-			//admin only
-			$dia_imgtag = $_POST['dia_imgtag'];
-			update_option('demon_image_annotation_dia_imgtag', $dia_imgtag);
+			//note maxlength
+			$dia_maxlength = $_POST['dia_maxlength'];
+			update_option('demon_image_annotation_maxlength', $dia_maxlength);
 			
 			?>
 			<div class="updated"><p><strong><?php _e('Options saved.' ); ?></strong></p></div>
@@ -447,15 +644,17 @@ class My_Example_List_Table extends WP_List_Table {
 			$dia_gravatar = get_option('demon_image_annotation_gravatar');
 			$dia_gravatardefault = get_option('demon_image_annotation_gravatar_deafult');
 			$dia_everypage = get_option('demon_image_annotation_everypage');
+			$dia_autoapprove = get_option('demon_image_annotation_autoapprove');
 			$dia_comments = get_option('demon_image_annotation_comments');
-			$dia_homepage = get_option('demon_image_annotation_homepage');
-			$dia_archive = get_option('demon_image_annotation_archive');
+			//$dia_homepage = get_option('demon_image_annotation_homepage');
+			//$dia_archive = get_option('demon_image_annotation_archive');
 			$dia_pages = get_option('demon_image_annotation_pages');
 			$dia_autoimageid = get_option('demon_image_annotation_autoimageid');
 			$dia_mouseoverdesc = get_option('demon_image_annotation_mouseoverdesc');
+			$dia_linkoption = get_option('demon_image_annotation_linkoption');
 			$dia_linkdesc = get_option('demon_image_annotation_linkdesc');
-			$dia_postid = get_option('demon_image_annotation_postid');
-			$dia_imgtag = get_option('demon_image_annotation_dia_imgtag');
+			$dia_clickable_text = get_option('demon_image_annotation_clickable_text');
+			$dia_maxlength = get_option('demon_image_annotation_maxlength');
 		}
 	?>
     
@@ -463,10 +662,11 @@ class My_Example_List_Table extends WP_List_Table {
     <form name="dia_form" method="post" action="<?php echo str_replace( '%7E', '~', $_SERVER['REQUEST_URI']); ?>">
         <input type="hidden" name="dia_hidden" value="Y">        
         <?php    echo "<h4>" . __( 'Image Annotation Settings', 'dia_trdom' ) . "</h4>"; ?>
+        <hr /> 
         <table class="form-table" width="100%">
             <tr>
                 <th>
-                    <label><?php _e("demon-image-annotation plugin status : " ); ?></label>
+                    <label><?php _e("Plugin Status : " ); ?></label>
                 </th>
               <td>
                   <?php
@@ -476,31 +676,31 @@ class My_Example_List_Table extends WP_List_Table {
                         echo "<label><input type='radio' name='dia_display' value='" . esc_attr($key) . "' $selected/> $value</label>";
                     } ?>
                     <br />
-                    <em>Enable or disable the demon-image-annotaion plugins although you want it to be Activate.</em>
+                    <p>Enable or disable the demon-image-annotaion plugins although you want it to be Activate.</p>
               </td>
             </tr>
             
             <tr>
                 <th>
-                    <label><?php _e("content wrapper : " ); ?></label>
+                    <label><?php _e("Post Content Wrapper : " ); ?></label>
                 </th>
                 <td>
-                    <input type="text" name="dia_csscontainer" value="<?php echo ($dia_csscontainer == '') ? '#entrybody' : $dia_csscontainer; ?>" size="20"><?php _e(" ex: #entrybody, .entrybody" ); ?><br />
+                    <input type="text" name="dia_csscontainer" value="<?php echo ($dia_csscontainer == '') ? '#entrybody' : $dia_csscontainer; ?>" size="20"><em><?php _e(" eg: #entrybody, .entrybody" ); ?></em><br />
                     <span style="color:#C00">#IMPORTANT</span><br />
-                    <em>This is where the image annotation check and load,<br />
-                    put in the div wrapper id or class where your post content appear.<br />
-                    (Leave it empty will treat all images as image annotation.)</em><br /><br />
+                    <p>The image annotation plugins initiate by targeting post content wrapper,<br />
+                    put in the div wrapper id or class where your post content appear.</p><br />
                     <strong>Example (.entrybody)</strong><br />
                     <code>
                     &lt;div class="entrybody&gt;<br />
                     &nbsp;&nbsp;&nbsp; &lt;?php the_content(); ?&gt;<br />
-                    &lt;/div&gt;</code><br />
+                    &lt;/div&gt;</code><br /><br />
+                    <em>Leave it empty will treat all images as image annotation.</em>
                 </td>
             </tr>
             
             <tr>
                 <th>
-                    <label><?php _e("auto insert image id attribute : " ); ?></label>
+                    <label><?php _e("Auto Generate Image ID : " ); ?></label>
                 </th>
               <td>
                   <?php
@@ -510,53 +710,36 @@ class My_Example_List_Table extends WP_List_Table {
                         echo "<label><input type='radio' name='dia_autoimageid' value='" . esc_attr($key) . "' $selected/> $value</label>";
                     } ?>
                     <br />
-                    <em>Enable jquery to auto insert images id attribute start with 'img-' for all the images,<br />
-                    the uniqe id will be generate by img src, it will skip if id attribute is exist.</em><br /><br />
-                    <em>Disable if you want to add id attribute manually like old version.</em><br />
-                    <code>&lt;img id="img-4774005463" src="http://farm5.static.flickr.com/4121/4774005463_3837b6de44_o.jpg" /&gt;</code><br />
-                    <em>Complete usage instructions are available here. (<a href="http://www.superwhite.cc/demon/image-annotation-plugin" target="_blank">http://www.superwhite.cc/demon/image-annotation-plugin</a>)</em>
-              </td>
-            </tr>
-            
-            <tr>
-                <th>
-                    <label><?php _e("include post id in image id attribute : " ); ?></label>
-                </th>
-              <td>
-                  <?php
-                    $sndisplaymode = array( 0 => __( 'Enable' ), 1 => __( 'Disable' ) );	
-                    foreach ( $sndisplaymode as $key => $value) {
-                        $selected = $dia_postid == $key ? 'checked="checked"' : '';
-                        echo "<label><input type='radio' name='dia_postid' value='" . esc_attr($key) . "' $selected/> $value</label>";
-                    } ?>
-                    <br />
-                    <em>Include post id in every auto insert images id, this is to avoid duplicate comments when you had same images in different post.<br />
-                    Enable this option will not load old images note since the images id is different.<br /><br /></em>
+                    <p>Enable jQuery to auto add an id attribute to HTML img tag,<br />
+                    the uniqe id will be generate by img src starting with 'img-postid-',<br />
+                    it will skip if the id attribute of img tag is already exist.</p><br />
                     
                     <strong>Example (img-postid-4774005463)</strong><br />
-                    <code>&lt;img id="img-12-4774005463" src="http://farm5.static.flickr.com/4121/4774005463_3837b6de44_o.jpg" /&gt;</code><br />
+                    <code>&lt;img id="img-12-4774005463" src="http://farm5.static.flickr.com/4121/4774005463_3837b6de44_o.jpg" /&gt;</code><br /><br />
+                    
+                    <em>Disable this option if you want to manually add img tag id attribute to all images.</em><br />
               </td>
             </tr>
             
             <tr>
                 <th>
-                    <label><?php _e("admin only : " ); ?></label>
+                    <label><?php _e("Admin Only : " ); ?></label>
                 </th>
               <td>
                   <?php 
-                    $sndisplaymode = array( 0 => __( 'Yes' ), 1 => __( 'No' ) );	
+                    $sndisplaymode = array( 0 => __( 'Enable' ), 1 => __( 'Disable' ) );
                     foreach ( $sndisplaymode as $key => $value) {
                         $selected = $dia_admin == $key ? 'checked="checked"' : '';
                         echo "<label><input type='radio' name='dia_admin' value='" . esc_attr($key) . "' $selected/> $value</label>";
                     } ?>
                     <br />
-                    <em>Choose Yes will only allow admin to add image note, <br />or choose No for every user to add image note.</em>
+                    <p>Enable to allow Add Note for login user only who can moderate comment, public still able to see image annotation.</p>
               </td>
             </tr>
             
             <tr>
                 <th>
-                    <label><?php _e("gravatar : " ); ?></label>
+                    <label><?php _e("Image Note Gravatar : " ); ?></label>
                 </th>
               <td>
                   <?php 
@@ -566,62 +749,64 @@ class My_Example_List_Table extends WP_List_Table {
                         echo "<label><input type='radio' name='dia_gravatar' value='" . esc_attr($key) . "' $selected/> $value</label>";
                     } ?>
                     <br />
-                    <em>Enable or disable to show gravatar in image note.</em><br />
-                    Default gravatar : <?php echo get_bloginfo('template_url'); ?><input type="text" name="dia_gravatardefault" value="<?php echo $dia_gravatardefault ?>" size="20"><?php _e(" ex: /images/default.png" ); ?><br />
+                    <p>Enable to show gravatar in image note.</p><br />
+                    <em>Default gravatar : </em><br/><?php echo get_bloginfo('template_url'); ?><input type="text" name="dia_gravatardefault" value="<?php echo $dia_gravatardefault ?>" size="20"><?php _e(" eg: /images/default.png" ); ?><br />
               </td>
             </tr>
             <tr>
                 <th>
-                    <label><?php _e("other pages? : " ); ?></label>
+                    <label><?php _e("Mouseover Description : " ); ?></label>
                 </th>
               <td>
-                    <label>Pages : <input name="dia_pages" type="checkbox" value="1" <?php ($dia_pages == 1) ? print 'checked="checked"' :''; ?> /></label>
+                    <input type="text" name="dia_mouseoverdesc" size="30" value="<?php echo ($dia_mouseoverdesc == '') ? '' : $dia_mouseoverdesc; ?>" size="20"><em><?php _e(" eg: Mouseover to load notes." ); ?></em>
                     <br />
-                    <em>Show image note on others page instead of single page, but add note button will be disabled.</em>
+                    <p>Show description on top of every image annotation, leave it empty to hide.</p>
               </td>
             </tr>
             <tr>
                 <th>
-                    <label><?php _e("mouseover description : " ); ?></label>
+                    <label><?php _e("Image Hyperlink : " ); ?></label>
                 </th>
               <td>
-                    <input type="text" name="dia_mouseoverdesc" size="30" value="<?php echo ($dia_mouseoverdesc == '') ? '' : $dia_mouseoverdesc; ?>" size="20"><?php _e(" ex: Mouseover to load notes." ); ?>
+              		<?php 
+                    $sndisplaymode = array( 0 => __( 'Enable' ), 1 => __( 'Disable' ) );	
+                    foreach ( $sndisplaymode as $key => $value) {
+                        $selected = $dia_linkoption == $key ? 'checked="checked"' : '';
+                        echo "<label><input type='radio' name='dia_linkoption' value='" . esc_attr($key) . "' $selected/> $value</label>";
+                    } ?>
                     <br />
-                    <em>Show description on top of every image annotation, leave it empty to hide.</em>
+                    <p>Enable to show image hyberlink behind load note instruction.</p><br />
+                    
+                    <input type="text" name="dia_linkdesc" size="30" value="<?php echo ($dia_linkdesc == '') ? '' : $dia_linkdesc; ?>" size="20"><em><?php _e(" eg: Source, Link, Flickr" ); ?></em>
+                    <br />
+                    <p>Image hyperlink name behind load note instruction, input %NONE% to show image link title attribute.</p><br/>
+                    <strong>Example</strong><br />
+                    <code>03 | Mouseover to load notes | Image Note by Flickr</code>
               </td>
             </tr>
             <tr>
                 <th>
-                    <label><?php _e("image hyperlink name : " ); ?></label>
-                </th>
-              <td>
-                    <input type="text" name="dia_linkdesc" size="30" value="<?php echo ($dia_linkdesc == '') ? 'link' : $dia_linkdesc; ?>" size="20"><?php _e(" ex: Link, Flickr" ); ?>
-                    <br />
-                    <em>Image hyperlink name after mouseover description.</em>
-              </td>
-            </tr>
-            <tr>
-                <th>
-                    <label><?php _e("Remove Image Tag : " ); ?></label>
+                    <label><?php _e("Remove Mouseover Text : " ); ?></label>
                 </th>
               <td>
                   <?php 
-                    $sndisplaymode = array( 0 => __( 'Yes' ), 1 => __( 'No' ) );	
+                    $sndisplaymode = array( 0 => __( 'Enable' ), 1 => __( 'Disable' ) );	
                     foreach ( $sndisplaymode as $key => $value) {
-                        $selected = $dia_imgtag == $key ? 'checked="checked"' : '';
-                        echo "<label><input type='radio' name='dia_imgtag' value='" . esc_attr($key) . "' $selected/> $value</label>";
+                        $selected = $dia_clickable_text == $key ? 'checked="checked"' : '';
+                        echo "<label><input type='radio' name='dia_clickable_text' value='" . esc_attr($key) . "' $selected/> $value</label>";
                     } ?>
                     <br />
-                    <em>Choose Yes to remove HTML Image tag.</em>
+                    <p>Enable to remove mouseover text, it will remove a tag title attribute if your image is clickable.</p>
               </td>
             </tr>
         </table><br /><br />
         
         <?php    echo "<h4>" . __( 'Comment Settings', 'dia_trdom' ) . "</h4>"; ?>
+        <hr /> 
         <table class="form-table" width="100%">
-            <tr>
+        	<tr>
                 <th>
-                    <label><?php _e("Wordpress comments : " ); ?></label>
+                    <label><?php _e("Wordpress Comments : " ); ?></label>
                 </th>
               <td>
                   <?php
@@ -631,14 +816,28 @@ class My_Example_List_Table extends WP_List_Table {
                         echo "<label><input type='radio' name='dia_comments' value='" . esc_attr($key) . "' $selected/> $value</label>";
                     } ?>
                     <br />
-                    <em>If enable all the image note will sync with wordpress commenting system, new image note will add into comment as waiting approval.<br />
-                        If disable all the image note will publish without sync with wordpress comment.
-                    </em>
+                    <p>Enable to sync all the image note with wordpress commenting system,<br />
+                    new image note from annoymous will add into wordpress comment as waiting approval.<p/>
               </td>
             </tr>
             <tr>
                 <th>
-                    <label><?php _e("Comments thumbnail : " ); ?></label>
+                    <label><?php _e("Approve Comments: " ); ?></label>
+                </th>
+              <td>
+                  <?php
+                    $sndisplaymode = array( 0 => __( 'Enable' ), 1 => __( 'Disable' ) );	
+                    foreach ( $sndisplaymode as $key => $value) {
+                        $selected = $dia_autoapprove == $key ? 'checked="checked"' : '';
+                        echo "<label><input type='radio' name='dia_autoapprove' value='" . esc_attr($key) . "' $selected/> $value</label>";
+                    } ?>
+                    <br />
+                    <p>Enable to automatically approve new comments without moderation or approval.</p>
+              </td>
+            </tr>
+            <tr>
+                <th>
+                    <label><?php _e("Comments Thumbnail : " ); ?></label>
                 </th>
               <td>
                   <?php
@@ -648,34 +847,166 @@ class My_Example_List_Table extends WP_List_Table {
                         echo "<label><input type='radio' name='dia_thumbnail' value='" . esc_attr($key) . "' $selected/> $value</label>";
                     } ?>
                     <br />
-                    <em>Enable or disable to show image thumbnail in comment area.</em>
+                    <p>Enable to show image thumbnail in comment list.</p>
+              </td>
+            </tr>
+            <tr>
+                <th>
+                    <label><?php _e("Comments Maxlength : " ); ?></label>
+                </th>
+              <td>
+                  <input type="number" name="dia_maxlength" max="300" value="<?php echo ($dia_maxlength == '') ? '140' : $dia_maxlength; ?>" size="20"><em><?php _e(" eg: 140" ); ?></em>
+                    <br />
+                    <p>Maximum characters for image note input.</p>
               </td>
             </tr>
         </table>
-            
+        <hr /> 
         <p class="submit">
-        <input type="submit" name="Submit" value="<?php _e('Update Options', 'dia_trdom' ) ?>" />
+        <input type="submit" name="Submit" class="button-primary" value="<?php _e('Update Options', 'dia_trdom' ) ?>" />
         </p>
         </form>
     </div>
+<?php } else if($page == 'dia_usage') {
+	
+	
+//*************** Usage ***************
+?>
+	<div class="wrap">
+    	<h3>How to use:</h3>
+        <hr/>
+    	<ol>
+    		<li>
+            	<p>First enter div wrapper <strong>id</strong> or <strong>class</strong> in settings where your post content appear, or else the plugin can't find the wrapper to start.</p>
+                <strong>Example (.entrybody)</strong><br />
+                <code>
+                &lt;div class="entrybody&gt;<br />
+                &nbsp;&nbsp;&nbsp; &lt;?php the_content(); ?&gt;<br />
+                &lt;/div&gt;</code><br /><br />
+            </li>
+            
+            <li>
+            	<p>To embed annotations and comments on images, your img tag must have id attribute value start with <strong>‘img-‘</strong>, this plugin already did the trick if you enable <strong>Auto Generate Image ID</strong> option.</p><br />
+            </li>
+            
+            <li>
+            	<p>
+                If you wish to add an id attribute maunally, here is the guide on how to insert id attribute to img tag.<br />
+                - First disable <strong>Auto Generate Image ID</strong> option<br />
+                - Add an id attribute start with <strong>‘img-‘</strong> follow by unique id to img tag.<br />
+                - All the images must have unique and different id or else you will get the same comments.
+                </p>
+                <strong>Example (img-4774005463)</strong><br />
+                <code>
+                &lt;img id=&quot;img-4774005463&quot; src=&quot;http://farm5.static.flickr.com/4121/4774005463_3837b6de44_o.jpg&quot; width=&quot;900&quot; height=&quot;599&quot; alt=&quot;Image Annotation Plugin&quot; /&gt;
+                </code>
+                <br /><br />
+            </li>
+            
+            <li>
+            	<p>
+                Decide the option for <strong>Wordpress Comments</strong> setting.
+                </p>
+                <p>
+                <strong>Sync with wordpress comments:</strong><br/>
+                - image note sync with wordpress comment database<br/>
+                - modified comment will auto update both database<br/>
+                - deleted comment from wordpress comment will not sync, have to delete manually in image notes table list.<br />
+                - new image note from annoymous will auto add into wordpress comment as waiting approval.<br/>
+                - the image note only publish when the comment is approve.<br/><br/>
+                
+                <strong>Not sync with wordpress comments:</strong><br/>
+                - standalone image note database.<br/>
+                - new image note will publish without approval.
+                </p>
+                <p>Pls note if you switch the option, the comments added with previous option will not load.</p>
+            </li>
+        </ol><br/><br/>
+        <h3>Usage:</h3>
+        <hr/>
+        <ol>
+            <li>
+            	<p><strong>Disable Add Note button:</strong><br/>
+                Add an addable attribute with value “false” to disable the add note button, but image notes still viewable.<br/>
+                Login User who can Moderate Comments still able to see Add button option.
+                </p>
+                <code>
+                &lt;img id=&quot;img-4774005463&quot; addable=&quot;false&quot; src=&quot;http://farm5.static.flickr.com/4121/4774005463_3837b6de44_o.jpg&quot; width=&quot;900&quot; height=&quot;599&quot; alt=&quot;Image Annotation Plugin&quot; /&gt;
+                </code>
+                <br /><br />
+            </li>
+            
+            <li>
+            	<p><strong>Exclude image:</strong><br/>
+                Add an exclude attribute to disable image annotation function.</p>
+                <code>
+                &lt;img exclude id=&quot;img-4774005463&quot; src=&quot;http://farm5.static.flickr.com/4121/4774005463_3837b6de44_o.jpg&quot; width=&quot;900&quot; height=&quot;599&quot; alt=&quot;Image Annotation Plugin&quot; /&gt;
+                </code>
+                <br /><br />
+            </li>
+            
+            <li>
+            	<p><strong>Comments thumbnail:</strong><br/>
+                To add thumbnails to your comments list manually, just add the php code below in your comment callback function.</p>
+                <code>
+                &lt;?php if (function_exists(&#39;dia_thumbnail&#39;)) {
+                    dia_thumbnail($comment-&gt;comment_ID);
+                }?&gt;
+                </code>
+                <br /><br />
+            </li>
+       	</ol><br/><br/>
+        <h3>Other Notes:</h3>
+        <hr/>   
+        <ol>
+        	<li>
+            	There's a new method to exlcude image annotation after version 3, but previous version method id="img-exclude" still work.
+            </li>
+            <li>
+            	Image preview for admin editing is only support version 3 and above, image note added with previous version does not support.
+            </li>
+        </ol>
+    </div>
     
-<?php } else { 
-	//image notes		
+<?php } else {
+	
+	
+//*************** Image Notes ***************
 ?>
     <div class="wrap">
-        <!--new-->
         <?php
-		 global $myListTable;
-		  $myListTable = new My_Example_List_Table();
-		  echo '</pre><div class="wrap"><h2>Image Notes</h2>';
-		  $myListTable->editNote();
-		  $myListTable->prepare_items();
-		?>
-		  <form method="post">
-			<input type="hidden" name="page" value="myannotatetable">
+		  echo '</pre><div class="wrap">';
+		  
+		  $action = isset($_REQUEST['action']) ? trim($_REQUEST['action']) : '';
+		  
+		  global $myListTable;
+		  $myListTable = new Image_Annotation_List_Table();
+		  
+		  if($action == 'edit'){
+		  	$myListTable->editNote();
+		  }else{
+		  	$myListTable->prepare_items();
+			?> 
+            <form method="post">
+				<input type="hidden" name="page" value="imageannotatetable">
 			<?php
-		  	$myListTable->display(); 
-		  	echo '</form></div>'; 
+				$myListTable->display();
+			?>
+			</form></div>
+            <?php
+		  }
 		?>
     </div>
-<?php } ?>
+<?php }
+
+//*************** Function ***************
+function dia_getBetween($var1="",$var2="",$pool){
+	$temp1 = strpos($pool,$var1)+strlen($var1);
+	$result = substr($pool,$temp1,strlen($pool));
+	$dd=strpos($result,$var2);
+	if($dd == 0){
+		$dd = strlen($result);
+	}
+	return substr($result,0,$dd);
+}
+?>
