@@ -1,15 +1,19 @@
 /*image note desc*/
-.image-note-desc{
+.dia-holder .dia-desc-holder{
 	font-family: Verdana, Sans-Serif;
 	font-size:11px;
 	color:#999;
 	text-align:left;
-	padding-left:12px;
-	text-decoration:none;
+	display: inline-block;
+	width:100%;
+}
+
+.dia-holder .dia-desc{
+	margin-left:10px;
 }
 
 /*image add a note button*/
-.image-annotate-add {
+.dia-holder .dia-add {
 	background: url(../images/asterisk_yellow.png) no-repeat 3px 3px;
     border: solid 0px #ccc !important;
     color: #999 !important;
@@ -20,27 +24,26 @@
     font-size: 11px;    
     height: 18px;
     line-height: 18px;    
-    padding: 2px 0px 0px 20px;
-    margin: -20px 10px 0px;
+    padding: 2px 10px 0px 20px;
     text-decoration: none;
 }
 
-.image-annotate-add:hover {
+.dia-holder .dia-add:hover {
     color: #999;
 }
 
 /*image note loader*/
-.image-annotate-loading {
+.dia-holder .dia-loading {
 	background: url(../images/loading.gif) no-repeat;
 }
 
 /*image note error*/
-.image-annotate-error {
+.dia-holder .dia-error {
 	background: url(../images/error.gif) no-repeat;
 }
 
 /*image note author*/
-.image-annotate-author {
+.dia-holder .dia-author {
 	font-size:11px;
 	font-style:italic;
 	color:#CCC;
@@ -48,12 +51,12 @@
 	margin-bottom:3px;
 }
 
-.image-annotate-author img {
+.dia-holder .dia-author img {
 	border: 0px;
 }
 
 /*image note canvas*/
-.image-annotate-canvas {
+.dia-holder .dia-canvas {
 	background-position: left top;
     background-repeat: no-repeat;
     display: block;
@@ -64,39 +67,42 @@
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
 }
-.image-annotate-view {
+
+/*image note move area*/
+.dia-holder .dia-view {
     display: none;
     position: relative;
 }
-.image-annotate-area {
+.dia-holder .dia-area {
     border: 1px solid #000000;
     position: absolute;
 	-moz-border-radius: 8px;
 	border-radius: 8px;
 }
-.image-annotate-area div {
+.dia-holder .dia-area div {
     border: 1px solid #FFFFFF;
     display: block;
 	-moz-border-radius: 8px;
 	border-radius: 8px;
 }
-.image-annotate-area-hover div {
+.dia-holder .dia-area-hover div {
     border-color: #28B6F1 !important;
 	-moz-border-radius: 8px;
 	border-radius: 8px;
 }
-.image-annotate-area-editable {
+.dia-holder .dia-area-editable {
     cursor: pointer;
 	-moz-border-radius: 8px;
 	border-radius: 8px;
 }
-.image-annotate-area-editable-hover div {
+.dia-holder .dia-area-editable-hover div {
     border-color: #28B6F1 !important;
 	-moz-border-radius: 8px;
 	border-radius: 8px;
 }
 
-.image-annotate-note {
+/*image note list area*/
+.dia-holder .dia-note {
     background: none repeat scroll 0 0;
 	background-image:url(../images/black.png);
     border: solid 1px #333;
@@ -110,15 +116,27 @@
 	-moz-border-radius: 8px;
 	border-radius: 8px;
 }
-.image-annotate-note .actions {
+.dia-holder .dia-note .actions {
     display: block;
     font-size: 80%;
 }
-.image-annotate-edit {
+
+.dia-holder .dia-note .dia-author{
+	font-style: italic;
+	color:#999;
+}
+
+/*image note list area*/
+.dia-holder .dia-edit {
     display: none;
 }
 
-#image-annotate-edit-form {
+/*image note form*/
+#dia-edit-form {
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box; /* Firefox, other Gecko */
+	box-sizing: border-box; /* Opera/IE 8+ */
+	
 	font-family: Verdana, Sans-Serif;
     font-size: 11px;
 	background: #F7F6F4 none repeat scroll 0 0;
@@ -126,47 +144,54 @@
     height: 160px;
     padding: 7px;
     position: absolute;
-    width: 260px;
+    width: 280px;
 	margin-top:10px;
 	-moz-border-radius: 8px;
 	border-radius: 8px;
+	text-align:center;
 }
-#image-annotate-edit-form form {
+#dia-edit-form form {
     clear: right;
     margin: 0 !important;
     padding: 0;
     z-index: 999;
 }
-#image-annotate-edit-form .box {
+#dia-edit-form label{
+	width:20%;
+	display:inline-block;
+}
+#dia-edit-form .box {
     margin: 0;
 }
-#image-annotate-edit-form input.form-text, #image-annotate-edit-form #edit-comment-wrapper textarea {
-	
-}
 
-#image-annotate-edit-form input {
+#dia-edit-form input {
 	font-family: Verdana, Sans-Serif;
 	font-size:11px;
-	 margin:1px;
-	 width:75%;
+	margin:1px;
+	width:75%;
 }
 
-#image-annotate-edit-form textarea {
+#dia-edit-form textarea {
 	font-family: Verdana, Sans-Serif;
 	font-size:11px;
     height: 50px;   
-    width: 240px;
+    width: 95%;
+	resize: none;
 }
-#image-annotate-edit-form fieldset {
+#dia-edit-form fieldset {
     background: transparent none repeat scroll 0 0;
 }
-#image-annotate-edit-form .form-item {
+#dia-edit-form .form-item {
     margin: 0 0 5px;
 }
-#image-annotate-edit-form .form-button, #image-annotate-edit-form .form-submit {
+#dia-edit-form .form-button, .dia-holder #dia-edit-form .form-submit {
     margin: 0;
 }
-#image-annotate-edit-form a {
+#dia-edit-form a {
+	box-sizing:border-box;
+    -moz-box-sizing:border-box; /* Firefox */
+    -webkit-box-sizing:border-box; /* Safari */
+	
     background-color: #fff;
     background-repeat: no-repeat;
     background-position: 3px 3px;
@@ -176,17 +201,19 @@
     display: block;
     float: left;    
     font-family: Verdana, Sans-Serif;
-    font-size: 11px;        
-    height: 18px;
-    line-height: 18px;
+    font-size: 11px;
+    line-height: 18px;        
     padding: 2px 0 2px 24px;
     margin: 3px 6px 3px 0;
-    width: 48px;
+    width: 80px;
+	height: 25px;
 }
-#image-annotate-edit-form a:hover {
+#dia-edit-form a:hover {
     background-color: #eee;
 }
-.image-annotate-edit-area {
+
+/*image note edit area*/
+.dia-holder .dia-edit-area {
     border: 1px solid #FC0;
     cursor: move;
     display: block;
@@ -200,84 +227,84 @@
 	-moz-border-radius: 8px;
 	border-radius: 8px;
 }
-.image-annotate-edit-area .ui-resizable-handle {
+.dia-holder .dia-edit-area .dia-holder .ui-resizable-handle {
     opacity: 0.8;
 }
 
-/*image note button*/
-.image-annotate-edit-ok {
+/*image note button icon*/
+#dia-edit-form .dia-edit-ok {
     background-image: url(../images/accept.png);
 }
-.image-annotate-edit-delete {
+#dia-edit-form .dia-edit-delete {
     background-image: url(../images/delete.png);
 }
-.image-annotate-edit-close {
+#dia-edit-form .dia-edit-close {
     background-image: url(../images/cross.png);
 }
 
 /*image note resize*/
-.ui-resizable {
+.dia-holder .ui-resizable {
     position: relative;
 }
-.ui-resizable-handle {
+.dia-holder .ui-resizable-handle {
     position: absolute;
     font-size: 0.1px;
     z-index: 99999;
     display: block;
 }
-.ui-resizable-disabled .ui-resizable-handle, .ui-resizable- autohide .ui-resizable-handle {
+.dia-holder .ui-resizable-disabled .dia-holder .ui-resizable-handle, .dia-holder .ui-resizable- autohide .dia-holder .ui-resizable-handle {
     display: block;
 }
-.ui-resizable-n {
+.dia-holder .ui-resizable-n {
     cursor: n-resize;
     height: 7px;
     width: 100%;
     top: -5px;
     left: 0px;
 }
-.ui-resizable-s {
+.dia-holder .ui-resizable-s {
     cursor: s-resize;
     height: 7px;
     width: 100%;
     bottom: -5px;
     left: 0px;
 }
-.ui-resizable-e {
+.dia-holder .ui-resizable-e {
     cursor: e-resize;
     width: 7px;
     right: -5px;
     top: 0px;
     height: 100%;
 }
-.ui-resizable-w {
+.dia-holder .ui-resizable-w {
     cursor: w-resize;
     width: 7px;
     left: -5px;
     top: 0px;
     height: 100%;
 }
-.ui-resizable-se {
+.dia-holder .ui-resizable-se {
     cursor: se-resize;
     width: 12px;
     height: 12px;
     right: 1px;
     bottom: 1px;
 }
-.ui-resizable-sw {
+.dia-holder .ui-resizable-sw {
     cursor: sw-resize;
     width: 9px;
     height: 9px;
     left: -5px;
     bottom: -5px;
 }
-.ui-resizable-nw {
+.dia-holder .ui-resizable-nw {
     cursor: nw-resize;
     width: 9px;
     height: 9px;
     left: -5px;
     top: -5px;
 }
-.ui-resizable-ne {
+.dia-holder .ui-resizable-ne {
     cursor: ne-resize;
     width: 9px;
     height: 9px;
@@ -286,8 +313,12 @@
 }
 
 /*image note comments thumbnail*/
-.image-note-thumbnail {
-	width:55px; height:55px;overflow: hidden; border:3px solid #666;
+.dia-thumbnail, .dia-thumbnail-src{
+	width:55px; height:55px;
+}
+
+.dia-thumbnail {
+	overflow: hidden; border:3px solid #666;
 	border: solid 3px #CCC;
 	-moz-border-radius: 10px;
 	border-radius: 10px;
@@ -295,14 +326,8 @@
 	background: url(../images/ajax-loader.gif) no-repeat center center #FFFFFF;
 }
 
-.image-note-thumbnail:hover {
+.dia-thumbnail:hover {
 	border: solid 3px #999;
 	-moz-border-radius: 10px;
 	border-radius: 10px;
 }
-
-.mask{
-	width:500%;height: 500%;
-}
-
-.image-note-thumbnail img{position: relative; margin-left:0px;}

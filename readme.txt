@@ -1,9 +1,12 @@
 === demon image annotation ===
 Contributors: demonisblack
+Donate link: https://www.paypal.com/my/cgi-bin/webscr?cmd=_flow&SESSION=7-TXw7mUZ80169sR8e_Sdrh3c9R2MZ2tqOAN9-DVktIOyjfMEJX7inyNCCO&dispatch=5885d80a13c0db1f8e263663d3faee8d66f31424b43e9a70645c907a6cbd8fb4
 Tags: comment,comments,image,images,note,notes,annotation,image annotation,dannychoo,facebook,tag,flickr
+Author URI: http://www.superwhite.cc/
+Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 Requires at least: 2.5
-Tested up to: 3.4
-Stable tag: 2.5.4
+Tested up to: 4.1
+Stable tag: 3.0
 
 Allows you to add textual annotations to images by select a region of the image and then attach a textual description.
 
@@ -12,38 +15,156 @@ Allows you to add textual annotations to images by select a region of the image 
 This plugin allows you to add textual annotations to images by select a region of the image and then attach a textual description, the concept of annotating images with user comments.
 Integration with JQuery Image Annotation from Chris (http://www.flipbit.co.uk/jquery-image-annotation.html) with PHP support from GitHub (http://github.com/stas/jquery-image-annotate-php-fork).
 
-Some features:
+<h3>demon Image Annotation Needs Your Support</h3>
+
+It is hard to continue development and support for this free plugin without contributions from users like you. If you enjoy using demon Image Annotation and find it useful, please consider making a donation. Your donation will help encourage and support the plugin's continued development and better user support.
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
+">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+
+<h3>Some features:</h3>
 
 
-* Admin page
-* Option to approve, edit amd remove image notes in admin page.
+* Option to approve, edit and remove image notes in admin page.
+* Preview image annotation in admin page.
 * Auto insert unique id attribute for all the images for image note.
+* Option to allow image annotation for login user who can moderate comment only
 * Gravatar in the notes
 * Option to sync with wordpress comments.
 * Option to show thumbnail in comment list.
-* Option to include post id in every auto insert images id.
 * 'Mouseover to load notes' on top of every image note (editable).
 * 'Link' on top of every image note if hyperlink image (editable).
 
 == Installation ==
 
-1. Put the plugin folder into [wordpress_dir]/wp-content/plugins/
-2. Go into the WordPress admin interface and activate the plugin
-3. Choose the settings you want in demon-image-annotation settings.
-4. Complete usage instructions are available here. (http://www.superwhite.cc/demon/image-annotation-plugin)
+<h3>Installation</h3>
+<ol>
+	<li>Put the plugin folder into [wordpress_dir]/wp-content/plugins/</li>
+	<li>Go into the WordPress admin interface and activate the plugin</li>
+	<li>Choose the settings you want in demon-image-annotation settings.</li>
+</ol>
+
+<h3>How to use</h3>
+<ol>
+	<li>
+		<p>First enter div wrapper <strong>id</strong> or <strong>class</strong> in settings where your post content appear, or else the plugin can't find the wrapper to start.</p>
+		<strong>Example (.entrybody)</strong><br />
+		<code>
+		&lt;div class="entrybody&gt;<br />
+		&nbsp;&nbsp;&nbsp; &lt;?php the_content(); ?&gt;<br />
+		&lt;/div&gt;</code><br /><br />
+	</li>
+	
+	<li>
+		<p>To embed annotations and comments on images, your img tag must have id attribute value start with <strong>‘img-‘</strong>, this plugin already did the trick if you enable <strong>Auto Generate Image ID</strong> option.</p><br />
+	</li>
+	
+	<li>
+		<p>
+		If you wish to add an id attribute maunally, here is the guide on how to insert id attribute to img tag.<br />
+		- First disable <strong>Auto Generate Image ID</strong> option<br />
+		- Add an id attribute start with <strong>‘img-‘</strong> follow by unique id to img tag.<br />
+		- All the images must have unique and different id or else you will get the same comments.
+		</p>
+		<strong>Example (img-4774005463)</strong><br />
+		<code>
+		&lt;img id=&quot;img-4774005463&quot; src=&quot;http://farm5.static.flickr.com/4121/4774005463_3837b6de44_o.jpg&quot; width=&quot;900&quot; height=&quot;599&quot; alt=&quot;Image Annotation Plugin&quot; /&gt;
+		</code>
+		<br /><br />
+	</li>
+	
+	<li>
+		<p>
+		Decide the option for <strong>Wordpress Comments</strong> setting.
+		</p>
+		<p>
+		<strong>Sync with wordpress comments:</strong><br/>
+		- image note sync with wordpress comment database<br/>
+		- modified comment will auto update both database<br/>
+		- deleted comment from wordpress comment will not sync, have to delete manually in image notes table list.<br />
+		- new image note from annoymous will auto add into wordpress comment as waiting approval.<br/>
+		- the image note only publish when the comment is approve.<br/><br/>
+		
+		<strong>Not sync with wordpress comments:</strong><br/>
+		- standalone image note database.<br/>
+		- new image note will publish without approval.
+		</p>
+		<p>Pls note if you switch the option, the comments added with previous option will not load.</p>
+	</li>
+</ol><br/><br/>
+<h3>Usage:</h3>
+<ol>
+	<li>
+		<p><strong>Disable Add Note button:</strong><br/>
+		Add an addable attribute with value “false” to disable the add note button, but image notes still viewable.<br/>
+		Login User who can Moderate Comments still able to see Add button option.
+		</p>
+		<code>
+		&lt;img id=&quot;img-4774005463&quot; addable=&quot;false&quot; src=&quot;http://farm5.static.flickr.com/4121/4774005463_3837b6de44_o.jpg&quot; width=&quot;900&quot; height=&quot;599&quot; alt=&quot;Image Annotation Plugin&quot; /&gt;
+		</code>
+		<br /><br />
+	</li>
+	
+	<li>
+		<p><strong>Exclude image:</strong><br/>
+		Add an exclude attribute to disable image annotation function.</p>
+		<code>
+		&lt;img exclude id=&quot;img-4774005463&quot; src=&quot;http://farm5.static.flickr.com/4121/4774005463_3837b6de44_o.jpg&quot; width=&quot;900&quot; height=&quot;599&quot; alt=&quot;Image Annotation Plugin&quot; /&gt;
+		</code>
+		<br /><br />
+	</li>
+	
+	<li>
+		<p><strong>Comments thumbnail:</strong><br/>
+		To add thumbnails to your comments list manually, just add the php code below in your comment callback function.</p>
+		<code>
+		&lt;?php if (function_exists(&#39;dia_thumbnail&#39;)) {
+			dia_thumbnail($comment-&gt;comment_ID);
+		}?&gt;
+		</code>
+		<br /><br />
+	</li>
+</ol>
 
 == Frequently Asked Questions ==
 
-No questions have been asked.
+<a rel="nofollow" href="http://www.superwhite.cc/demon/image-annotation-plugin">Visit the site for more questions or help.</a>
+
+== Other Notes ==
+<ol>
+<li>There's a new method to exlcude image annotation after version 3, but previous version method id="img-exclude" still work. </li>
+<li>Image preview for admin editing is only support version 3 and above, image note added with previous version will not support.</li>
+</ol>
 
 == Screenshots ==
 
 1. Demonstration of demon image annotation.
 2. Demonstration of demon image annotation.
 3. Image annotation settings.
-4. Image annotation list.
+4. Image annotation table list.
+5. Image annotation editing.
 
 == Changelog ==
+= 3.0   =
+* Fixed HTTPS issue
+* Fixed wordpress comment synced with image note data.
+* Update database column.
+* Update admin image notes table list.
+* Update jQuery version to 2.1.1
+* Update jQuery UI version to 1.11.2
+* Add Image preview in admin image notes table list.
+* Add edit image button in wordpress comment table list.
+* Add submenu to admin page
+* Add comments maxlength setting
+* Able to manage settings base on roles and capabilities
+* Able to approve, edit and remove image notes base on roles and capabilities
+* Able to add new line for image notes
+* Able to restore comment from Trash in admin image notes table list.
+
 = 2.5.4   =
 * Thumbnail resize fixed.
 * Thumbnail preloader.

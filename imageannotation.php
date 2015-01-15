@@ -1,24 +1,27 @@
 <?php 
 /*
-Plugin Name: Demon Image Annotations
+Plugin Name: Demon Image Annotation
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
-Description: 'Allows you to add textual annotations to images by select a region of the image and then attach a textual description, the concept of annotating images with user comments.'
+Description: Allows you to add textual annotations to images by select a region of the image and then attach a textual description, the concept of annotating images with user comments.
 Author: Demon
-Version: 2.5.4
+Version: 3.0
 Author URI: http://www.superwhite.cc
+Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 */
 
+include_once('imageannotation-data.php');
+
 //*************** Header function ***************
-function load_jquery_js() {
+function dia_jquery() {
 	wp_register_style( 'annotate-style', plugins_url( '/css/annotation.css', __FILE__ ));
     wp_enqueue_style( 'annotate-style' ); 
 
 	wp_deregister_script('jquery');
-	wp_register_script( 'jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js');
+	wp_register_script( 'jquery', '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js');
     wp_enqueue_script( 'jquery' );
 	
 	wp_deregister_script('jquery-ui');
-	wp_register_script('jquery-ui', 'http://code.jquery.com/ui/1.8.21/jquery-ui.min.js');
+	wp_register_script('jquery-ui', '//code.jquery.com/ui/1.11.2/jquery-ui.min.js');
 	wp_enqueue_script('jquery-ui');
 	
 	wp_deregister_script('jquery-annotate');
@@ -30,7 +33,7 @@ function load_jquery_js() {
 	wp_enqueue_script('jquery-annotate-config');
 }
 
-function load_image_annotation_js() {
+function dia_init_js() {
 	function ae_detect_ie()
 	{
 		if (isset($_SERVER['HTTP_USER_AGENT']) && 
@@ -41,134 +44,315 @@ function load_image_annotation_js() {
 	}
 	
 	if (is_single()) {
-		$plugin = 1;
+		$page = 0;
 	} else if(is_page()){
 		if( (get_option('demon_image_annotation_pages') == '1') ) {
-			$plugin = 2;
+			$page = 2;
 		} else {
-			$plugin = 0;
+			$page = 1;
 		}	
 	}
 	
+	$initNote = false;
+	
+	if(get_option('demon_image_annotation_comments') == '0' && comments_open()){
+		$initNote = true;
+	}else{
+		$initNote = true;	
+	}
+	
+	if($initNote){
 	?>
     <script language="javascript">
-	<?php if( (get_option('demon_image_annotation_display') == '0' && $plugin != 0) ) { ?>
-	//jQuery.noConflict();
+	<?php if( (get_option('demon_image_annotation_display') == '0' && $page != 1) ) { ?>
 	jQuery(document).ready(function(){
 		jQuery(this).initAnnotate({
 				container:'<?php echo get_option('demon_image_annotation_postcontainer'); ?>',
-				admin:<?php echo get_option('demon_image_annotation_admin'); ?>,
-				plugin:<?php echo $plugin; ?>,
-				pluginpath:'<?php echo plugins_url( 'imageannotation-run' , __FILE__ ); ?>',
-				autoiimgd:<?php echo get_option('demon_image_annotation_autoimageid'); ?>,
-				postid:<?php global $wp_query; $thePostID = $wp_query->post->ID; echo $thePostID; ?>,
-				removeimgtag:<?php echo get_option('demon_image_annotation_autoimageid'); ?>,
-				mouseoverdesc:'<?php echo get_option('demon_image_annotation_mouseoverdesc'); ?>',
-				linkdesc:'<?php echo get_option('demon_image_annotation_linkdesc'); ?>',
-				level:<?php get_currentuserinfo(); global $user_level; echo $user_level;?>
+				adminOnly:<?php echo get_option('demon_image_annotation_admin'); ?>,
+				pageOnly:<?php echo $page; ?>,
+				pluginPath:'<?php echo plugins_url( 'imageannotation-run' , __FILE__ ); ?>',
+				autoImgID:<?php echo get_option('demon_image_annotation_autoimageid'); ?>,
+				postID:<?php global $wp_query; $thePostID = $wp_query->post->ID; echo $thePostID; ?>,
+				removeImgTag:<?php echo get_option('demon_image_annotation_clickable_text'); ?>,
+				mouseoverDesc:'<?php echo get_option('demon_image_annotation_mouseoverdesc'); ?>',
+				maxLength:<?php echo get_option('demon_image_annotation_maxlength'); ?>,
+				imgLinkOption:'<?php echo get_option('demon_image_annotation_linkoption'); ?>',
+				imgLinkDesc:'<?php echo get_option('demon_image_annotation_linkdesc'); ?>',
+				userLevel:<?php get_currentuserinfo(); global $user_level; echo $user_level;?>
 		});
 	});
 	<?php } ?>
-	
 	</script>
     <?php
-}
-
-//*************** Comment function ***************
-function getImgID() {
-	global $comment;
-	$commentID = $comment->comment_ID;
-	
-	global $wpdb;
-	$table_name = $wpdb->prefix . "demon_imagenote";
-	$imgIDNow = $wpdb->get_var("SELECT note_img_ID FROM ".$table_name." WHERE note_comment_id = ".(int)$commentID);
-	
-	if($imgIDNow != "") {
-		$str = substr($imgIDNow, 4, strlen($imgIDNow));
-		echo "<div id=\"comment-".$str."\"><a href='#".$str."'>noted on #".$imgIDNow."</a></div>";
-	} else {
-		echo "&nbsp;";	
 	}
 }
 
-function getImgID_inserter($comment_ID = 0){
-	getImgID();
+//*************** Comment function ***************
+function dia_thumbnail() {
+	if(basename($_SERVER['PHP_SELF']) != 'imageannotation-run.php'){
+		global $comment;
+		$commentID = $comment->comment_ID;
+		
+		global $wpdb;
+		$table_name = $wpdb->prefix . "demon_imagenote";
+		$imgIDNow = $wpdb->get_var("SELECT note_img_ID, note_ID FROM ".$table_name." WHERE note_comment_id = ".(int)$commentID);
+		$imgID = $wpdb->get_var("SELECT note_ID FROM ".$table_name." WHERE note_comment_id = ".(int)$commentID);
+		
+		if($imgIDNow != "") {
+			$str = substr($imgIDNow, 4, strlen($imgIDNow));
+			
+			if (is_admin()){
+				echo "<div id=\"comment-".$str."\"><a href='admin.php?page=dia_image_notes&action=edit&note=".$imgID."'>Edit Image Note > #".$imgIDNow."</a></div>";	
+			}else{
+				echo "<div id=\"comment-".$str."\"><a href='#".$str."'>noted on #".$imgIDNow."</a></div>";
+			}
+		} else {
+			echo "&nbsp;";	
+		}
+	}
+}
+
+function dia_thumbnail_inserter($comment_ID = 0){
+	dia_thumbnail();
 	$comment_content = get_comment_text();
 	return $comment_content;
 }
 
 if( (get_option('demon_image_annotation_display') == '0') ) {
 	if( (get_option('demon_image_annotation_thumbnail') == '0') ) {
-		add_filter('comment_text', 'getImgID_inserter', 10, 4);
+		add_filter('comment_text', 'dia_thumbnail_inserter', 10, 4);
 	}
 }
 
-add_action('wp_enqueue_scripts', 'load_jquery_js');
-add_action('wp_head', 'load_image_annotation_js');
+add_action('wp_enqueue_scripts', 'dia_jquery');
+add_action('wp_head', 'dia_init_js');
 
 //*************** Admin function ***************
-function demonimageannotation_admin() {
+function dia_admin_init(){
+	$dia_display = dia_default('demon_image_annotation_display');
+	$dia_admin = dia_default('demon_image_annotation_admin');
+	$dia_gravatar = dia_default('demon_image_annotation_gravatar');
+	$dia_autoimageid = dia_default('demon_image_annotation_autoimageid');
+	$dia_mouseoverdesc = dia_default('demon_image_annotation_mouseoverdesc');
+	$dia_linkoption = dia_default('demon_image_annotation_linkoption');
+	$dia_linkdesc = dia_default('demon_image_annotation_linkdesc');
+	$dia_clickable_text = dia_default('demon_image_annotation_clickable_text');
+	$dia_maxlength = dia_default('demon_image_annotation_maxlength');
+	$dia_comments = dia_default('demon_image_annotation_autoapprove');
+	$dia_comments = dia_default('demon_image_annotation_comments');
+	$dia_thumbnail = dia_default('demon_image_annotation_thumbnail');
+	
+	dia_createtable();
+	dia_admin_ignore_notice();
+}
+
+function dia_default($con){
+	$dia_option = get_option($con);
+	if($dia_option==''){
+		switch ($con) {
+			case 'demon_image_annotation_display':
+				$dia_option='0';
+				break;
+			case 'demon_image_annotation_admin':
+				$dia_option='1';
+				break;
+			case 'demon_image_annotation_gravatar':
+				$dia_option='0';
+				break;
+			case 'demon_image_annotation_autoimageid':
+				$dia_option='0';
+				break;
+			case 'demon_image_annotation_mouseoverdesc':
+				$dia_option='Mouseover to load notes';
+				break;
+			case 'demon_image_annotation_linkoption':
+				$dia_option='0';
+				break;
+			case 'demon_image_annotation_linkdesc':
+				$dia_option='Link';
+				break;
+			case 'demon_image_annotation_clickable_text':
+				$dia_option='0';
+				break;
+			case 'demon_image_annotation_maxlength':
+				$dia_option='140';
+				break;
+			case 'demon_image_annotation_comments':
+				$dia_option='0';
+				break;
+			case 'demon_image_annotation_thumbnail':
+				$dia_option='0';
+				break;
+			case 'demon_image_annotation_autoapprove':
+				$dia_option='1';
+				break;
+		} 
+		update_option($con, $dia_option);	
+	}
+	return $dia_option;
+}
+
+function dia_admin() {
 	include('imageannotation-admin.php');
 }
 
-function demonimageannotation_admin_actions() {
-	add_menu_page('demon-Image-Annotation', 'demon-Image-Annotation', 'manage_options', 'demon-Image-Annotation', 'demonimageannotation_admin', plugins_url('icon.png',__FILE__));
-	changeTableName();
+function dia_admin_actions() {
+	//add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, $position );
+	add_menu_page(__('Image Annotation','dia-menu'), __('Image Annotation','dia-menu'), 1, 'dia_image_notes', 'dia_admin', plugins_url('icon.png',__FILE__));
+	
+	//add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );
+	if ( current_user_can('manage_options') ) {
+		add_submenu_page('dia_image_notes', __('Image Notes','dia-menu'), __('Image Notes','dia-menu'), 1, 'dia_image_notes');
+		add_submenu_page('dia_image_notes', __('Settings','dia-menu'), __('Settings','dia-menu'), 'manage_options', 'dia_settings', 'dia_admin');
+		add_submenu_page('dia_image_notes', __('Usage','dia-menu'), __('Usage','dia-menu'), 'manage_options', 'dia_usage', 'dia_admin');
+	}
 }
 
-function demonimageannotation_admin_head() {
+function dia_admin_head() {
 	echo '<link rel="stylesheet" type="text/css" href="' .plugins_url('css/admin.css', __FILE__). '">';
+	
+	if (is_admin()){
+	dia_jquery();
+	?>
+	<script language="javascript">
+	jQuery(document).ready(function(){
+		jQuery(this).initAnnotate({
+				container:'#dia-admin-holder',
+				pluginPath:'<?php echo plugins_url( 'imageannotation-run' , __FILE__ ); ?>',
+				autoImgID:1,
+				mouseoverDesc:'Mouseover to edit note',
+				maxLength:<?php echo get_option('demon_image_annotation_maxlength'); ?>,
+				imgLinkOption:1,
+				userLevel:<?php get_currentuserinfo(); global $user_level; echo $user_level;?>,
+				previewOnly:1
+		});
+	});
+	</script>
+    <?php
+	}
 }
 
-function changeTableName() {
+function dia_createtable() {
 	global $wpdb;
 	$table_name = $wpdb->prefix . "demon_imagenote";
-
-	//wp_demon_imagenote
-    if($wpdb->get_var("show tables like '".$table_name."'") != $table_name) {
-   		$sql = "Rename table `demon_imagenote` to `".$table_name."`;";
-		$wpdb->query($sql);
-		
-		$sql = "Rename table `wp_imagenote` to `".$table_name."`;";
-		$wpdb->query($sql);
-    }
+	$dia_pluginver = get_option('demon_image_annotation_pluginver');
+	
+	//rename old table
+	if($dia_pluginver=='' || $dia_pluginver <3){
+		if($wpdb->get_var("show tables like '".$table_name."'") != $table_name) {
+			$sql = "Rename table `demon_imagenote` to `".$table_name."`;";
+			$wpdb->query($sql);
+			
+			$sql = "Rename table `wp_imagenote` to `".$table_name."`;";
+			$wpdb->query($sql);
+		}
+	}
 	
    if($wpdb->get_var("show tables like '$table_name'") != $table_name) {
 	  $sql = "CREATE TABLE IF NOT EXISTS `".$table_name."` (
-	  `note_ID` int(11) NOT NULL AUTO_INCREMENT,
+	  `note_ID` bigint(20) NOT NULL AUTO_INCREMENT,
 	  `note_img_ID` varchar(30) NOT NULL,
-	  `note_comment_ID` int(11) NOT NULL,
+	  `note_comment_ID` bigint(20) NOT NULL,
+	  `note_post_ID` bigint(20) NOT NULL,
 	  `note_author` varchar(100) NOT NULL,
 	  `note_email` varchar(100) NOT NULL,
-	  `note_top` int(11) NOT NULL,
-	  `note_left` int(11) NOT NULL,
-	  `note_width` int(11) NOT NULL,
-	  `note_height` int(11) NOT NULL,
+	  `note_top` bigint(20) NOT NULL,
+	  `note_left` bigint(20) NOT NULL,
+	  `note_width` bigint(20) NOT NULL,
+	  `note_height` bigint(20) NOT NULL,
 	  `note_text` text NOT NULL,
 	  `note_text_ID` varchar(100) NOT NULL,
 	  `note_editable` tinyint(1) NOT NULL,
+	  `note_approved` VARCHAR(30) NOT NULL,
 	  `note_date` datetime NOT NULL,
 	  PRIMARY KEY (`note_ID`)
 	) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=21 ;";
 
 	  require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 	  dbDelta($sql);
-   } else {
-	  $sql = "ALTER TABLE `".$table_name."` modify `note_img_ID` VARCHAR(30);";
-	  $wpdb->query($sql);
 	  
-	  if($wpdb->get_var("Show columns from ".$table_name." like 'note_approved'") != "note_approved") {
-		echo "RUNNING";
-   		$sql = "ALTER TABLE `".$table_name."` ADD `note_approved` VARCHAR(20) DEFAULT '1' AFTER `note_editable`;";
-	    $wpdb->query($sql);
-      }
+   } else {
+	  if($dia_pluginver=='' || $dia_pluginver <3){
+		  $sql = "ALTER TABLE `".$table_name."` modify `note_img_ID` VARCHAR(30);";
+		  $wpdb->query($sql);
+		  
+		  $sql = "ALTER TABLE `".$table_name."` 
+		  modify `note_ID` bigint(20) NOT NULL AUTO_INCREMENT,
+		  modify `note_comment_ID` bigint(20),
+		  modify `note_top` bigint(20),
+		  modify `note_left` bigint(20),
+		  modify `note_width` bigint(20),
+		  modify `note_height` bigint(20),
+		  modify `note_approved` VARCHAR(30);";
+		  $wpdb->query($sql);
+		  
+		  $sql = "ALTER TABLE `".$table_name."` ADD `note_post_ID` bigint(20) NOT NULL AFTER `note_comment_ID`;";
+		  $wpdb->query($sql);
+		  
+		  $dia_pluginver = 3;
+		  update_option('demon_image_annotation_pluginver', $dia_pluginver);
+	  }
    }
 }
 
+function dia_admin_notice(){
+	global $current_user;
+	if ( ! get_user_meta($current_user->ID, 'dia_admin_ignore_notice') ) {
+		global $pagenow;
+		$paged = !empty($_GET["page"]) ? mysql_real_escape_string($_GET["page"]) : '';
+		$message = '<b>Important:</b> Please update the new version of settings and usage';
+		echo '<div class="updated"><h3>demon Image annotation</h3><p>';
+		if($paged == 'dia_image_notes' || $paged == 'dia_settings' || $paged == 'dia_usage'){
+			printf(__($message.' | <a href="admin.php?page=dia_settings">Settings</a> | <a href="'.str_replace( '%7E', '~', $_SERVER['REQUEST_URI']).'%1$s">Hide Notice</a>'), '&dia_admin_ignore_notice=0');
+		}else{
+			printf(__($message.' | <a href="admin.php?page=dia_settings">Settings</a> | <a href="%1$s">Hide Notice</a>'), '?dia_admin_ignore_notice=0');	
+		}
+		echo "</p></div>";
+	}
+}
 
+function dia_admin_ignore_notice() {
+	global $current_user;
+	if ( isset($_GET['dia_admin_ignore_notice']) && '0' == $_GET['dia_admin_ignore_notice'] ) {
+		add_user_meta($current_user->ID, 'dia_admin_ignore_notice', 'true', true);
+	}
+}
+
+if(!function_exists('wp_get_current_user')) {
+	include(ABSPATH . "wp-includes/pluggable.php"); 
+}
 if (is_admin())
 {
-	add_action('admin_head', 'demonimageannotation_admin_head');
-	add_action('admin_menu', 'demonimageannotation_admin_actions');
+	if ( current_user_can('manage_options') ) { 
+		add_action('admin_init', 'dia_admin_init');
+		add_action('admin_notices', 'dia_admin_notice');
+		add_filter('comment_text', 'dia_thumbnail_inserter', 10, 4);
+	}
 }
+
+add_action('admin_head', 'dia_admin_head');
+add_action('admin_menu', 'dia_admin_actions');
+
+//*************** Plugin function ***************
+function dia_plugin_action($links) { 
+  $settings_link = '<a href="admin.php?page=dia_settings">Settings</a>'; 
+  array_unshift($links, $settings_link); 
+  return $links; 
+}
+
+function dia_plugin_row_meta( $links, $file ) {
+	$plugin = plugin_basename(__FILE__);
+	if ($file == $plugin) {
+		return array_merge(
+			$links,
+			array( sprintf( '<a href="admin.php?page=%s">Settings</a>', 'dia_settings'),
+				 sprintf( '<a href="admin.php?page=%s">Image Notes</a>', 'dia_image_notes'),
+				 sprintf( '<a href="http://goo.gl/Ead1GA">Donate</a>'))
+		);
+	}
+	return $links;
+}
+
+add_filter("plugin_action_links_$plugin", 'dia_plugin_action' );
+add_filter( 'plugin_row_meta', 'dia_plugin_row_meta', 10, 2 );
 ?>
