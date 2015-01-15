@@ -1,6 +1,6 @@
 === demon image annotation ===
 Contributors: demonisblack
-Donate link: https://www.paypal.com/my/cgi-bin/webscr?cmd=_flow&SESSION=7-TXw7mUZ80169sR8e_Sdrh3c9R2MZ2tqOAN9-DVktIOyjfMEJX7inyNCCO&dispatch=5885d80a13c0db1f8e263663d3faee8d66f31424b43e9a70645c907a6cbd8fb4
+Donate link: https://www.paypal.com/my/cgi-bin/webscr?cmd=_flow&SESSION=18GfxUjB0LLu6Bubk1OcByQzupwiyqCrq5R-MGEyrsmYZ1_0O5uxt2mbXRe&dispatch=5885d80a13c0db1f8e263663d3faee8d66f31424b43e9a70645c907a6cbd8fb4
 Tags: comment,comments,image,images,note,notes,annotation,image annotation,dannychoo,facebook,tag,flickr
 Author URI: http://www.superwhite.cc/
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
@@ -17,7 +17,7 @@ Integration with JQuery Image Annotation from Chris (http://www.flipbit.co.uk/jq
 
 <h3>demon Image Annotation Needs Your Support</h3>
 
-It is hard to continue development and support for this free plugin without contributions from users like you. If you enjoy using demon Image Annotation and find it useful, please consider making a donation. Your donation will help encourage and support the plugin's continued development and better user support. [Donate](https://www.paypal.com/my/cgi-bin/webscr?cmd=_flow&SESSION=7-TXw7mUZ80169sR8e_Sdrh3c9R2MZ2tqOAN9-DVktIOyjfMEJX7inyNCCO&dispatch=5885d80a13c0db1f8e263663d3faee8d66f31424b43e9a70645c907a6cbd8fb4 "Donate")
+It is hard to continue development and support for this free plugin without contributions from users like you. If you enjoy using demon Image Annotation and find it useful, please consider making a donation. Your donation will help encourage and support the plugin's continued development and better user support. [Donate](https://www.paypal.com/my/cgi-bin/webscr?cmd=_flow&SESSION=18GfxUjB0LLu6Bubk1OcByQzupwiyqCrq5R-MGEyrsmYZ1_0O5uxt2mbXRe&dispatch=5885d80a13c0db1f8e263663d3faee8d66f31424b43e9a70645c907a6cbd8fb4 "Donate")
 
 <h3>Some features:</h3>
 
