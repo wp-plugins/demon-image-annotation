@@ -17,7 +17,7 @@ Integration with JQuery Image Annotation from Chris (http://www.flipbit.co.uk/jq
 
 <h3>demon Image Annotation Needs Your Support</h3>
 
-It is hard to continue development and support for this free plugin without contributions from users like you. If you enjoy using demon Image Annotation and find it useful, please consider making a donation. Your donation will help encourage and support the plugin's continued development and better user support. [Donate](https://www.paypal.com/my/cgi-bin/webscr?cmd=_flow&SESSION=7-TXw7mUZ80169sR8e_Sdrh3c9R2MZ2tqOAN9-DVktIOyjfMEJX7inyNCCO&dispatch=5885d80a13c0db1f8e263663d3faee8d66f31424b43e9a70645c907a6cbd8fb4 "Your favorite software")
+It is hard to continue development and support for this free plugin without contributions from users like you. If you enjoy using demon Image Annotation and find it useful, please consider making a donation. Your donation will help encourage and support the plugin's continued development and better user support. [Donate](https://www.paypal.com/my/cgi-bin/webscr?cmd=_flow&SESSION=7-TXw7mUZ80169sR8e_Sdrh3c9R2MZ2tqOAN9-DVktIOyjfMEJX7inyNCCO&dispatch=5885d80a13c0db1f8e263663d3faee8d66f31424b43e9a70645c907a6cbd8fb4 "Donate")
 
 <h3>Some features:</h3>
 
@@ -49,11 +49,10 @@ It is hard to continue development and support for this free plugin without cont
 <code>
 &lt;div class="entrybody&gt;<br />
 &nbsp;&nbsp;&nbsp; &lt;?php the_content(); ?&gt;<br />
-&lt;/div&gt;</code><br /><br />
+&lt;/div&gt;</code>
 </li>
-
 <li>
-<p>To embed annotations and comments on images, your img tag must have id attribute value start with <strong>‘img-‘</strong>, this plugin already did the trick if you enable <strong>Auto Generate Image ID</strong> option.</p><br />
+<p>To embed annotations and comments on images, your img tag must have id attribute value start with <strong>‘img-‘</strong>, this plugin already did the trick if you enable <strong>Auto Generate Image ID</strong> option.</p>
 </li>
 
 <li>
@@ -67,7 +66,6 @@ If you wish to add an id attribute maunally, here is the guide on how to insert 
 <code>
 &lt;img id=&quot;img-4774005463&quot; src=&quot;http://farm5.static.flickr.com/4121/4774005463_3837b6de44_o.jpg&quot; width=&quot;900&quot; height=&quot;599&quot; alt=&quot;Image Annotation Plugin&quot; /&gt;
 </code>
-<br /><br />
 </li>
 
 <li>
@@ -80,7 +78,7 @@ Decide the option for <strong>Wordpress Comments</strong> setting.
 - modified comment will auto update both database<br/>
 - deleted comment from wordpress comment will not sync, have to delete manually in image notes table list.<br />
 - new image note from annoymous will auto add into wordpress comment as waiting approval.<br/>
-- the image note only publish when the comment is approve.<br/><br/>
+- the image note only publish when the comment is approve.
 
 <strong>Not sync with wordpress comments:</strong><br/>
 - standalone image note database.<br/>
@@ -89,7 +87,6 @@ Decide the option for <strong>Wordpress Comments</strong> setting.
 <p>Pls note if you switch the option, the comments added with previous option will not load.</p>
 </li>
 </ol>
-
 
 <h3>Usage:</h3>
 <ol>
@@ -101,7 +98,6 @@ Login User who can Moderate Comments still able to see Add button option.
 <code>
 &lt;img id=&quot;img-4774005463&quot; addable=&quot;false&quot; src=&quot;http://farm5.static.flickr.com/4121/4774005463_3837b6de44_o.jpg&quot; width=&quot;900&quot; height=&quot;599&quot; alt=&quot;Image Annotation Plugin&quot; /&gt;
 </code>
-<br /><br />
 </li>
 
 <li>
@@ -110,7 +106,6 @@ Add an exclude attribute to disable image annotation function.</p>
 <code>
 &lt;img exclude id=&quot;img-4774005463&quot; src=&quot;http://farm5.static.flickr.com/4121/4774005463_3837b6de44_o.jpg&quot; width=&quot;900&quot; height=&quot;599&quot; alt=&quot;Image Annotation Plugin&quot; /&gt;
 </code>
-<br /><br />
 </li>
 
 <li>
@@ -121,13 +116,12 @@ To add thumbnails to your comments list manually, just add the php code below in
 	dia_thumbnail($comment-&gt;comment_ID);
 }?&gt;
 </code>
-<br /><br />
 </li>
 </ol>
 
 == Frequently Asked Questions ==
 
-[Visit the site for more questions or help.](http://www.superwhite.cc/demon/image-annotation-plugin "Your favorite software")
+[Visit the site for more questions or help.](http://www.superwhite.cc/demon/image-annotation-plugin "Visit the site for more questions or help.")
 
 == Other Notes ==
 <ol>
