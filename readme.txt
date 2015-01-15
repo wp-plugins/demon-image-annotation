@@ -78,7 +78,7 @@ Decide the option for <strong>Wordpress Comments</strong> setting.
 - modified comment will auto update both database<br/>
 - deleted comment from wordpress comment will not sync, have to delete manually in image notes table list.<br />
 - new image note from annoymous will auto add into wordpress comment as waiting approval.<br/>
-- the image note only publish when the comment is approve.
+- the image note only publish when the comment is approve.<br/><br/>
 
 <strong>Not sync with wordpress comments:</strong><br/>
 - standalone image note database.<br/>
