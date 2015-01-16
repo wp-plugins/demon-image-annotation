@@ -4,7 +4,7 @@ Plugin Name: Demon Image Annotation
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 Description: Allows you to add textual annotations to images by select a region of the image and then attach a textual description, the concept of annotating images with user comments.
 Author: Demon
-Version: 3.0
+Version: 3.1
 Author URI: http://www.superwhite.cc
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 */

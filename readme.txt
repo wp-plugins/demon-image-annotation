@@ -1,12 +1,12 @@
 === demon image annotation ===
 Contributors: demonisblack
-Donate link: https://www.paypal.com/my/cgi-bin/webscr?cmd=_flow&SESSION=18GfxUjB0LLu6Bubk1OcByQzupwiyqCrq5R-MGEyrsmYZ1_0O5uxt2mbXRe&dispatch=5885d80a13c0db1f8e263663d3faee8d66f31424b43e9a70645c907a6cbd8fb4
+Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=HBKHFYS86E99Q&lc=MY&item_name=demon%20Image%20Annotation%20Plugin&item_number=dia_plugin&currency_code=MYR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
 Tags: comment,comments,image,images,note,notes,annotation,image annotation,dannychoo,facebook,tag,flickr
 Author URI: http://www.superwhite.cc/
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 Requires at least: 2.5
 Tested up to: 4.1
-Stable tag: 3.0
+Stable tag: 3.1
 
 Allows you to add textual annotations to images by select a region of the image and then attach a textual description.
 
@@ -15,12 +15,15 @@ Allows you to add textual annotations to images by select a region of the image 
 This plugin allows you to add textual annotations to images by select a region of the image and then attach a textual description, the concept of annotating images with user comments.
 Integration with JQuery Image Annotation from Chris (http://www.flipbit.co.uk/jquery-image-annotation.html) with PHP support from GitHub (http://github.com/stas/jquery-image-annotate-php-fork).
 
-<h3>demon Image Annotation Needs Your Support</h3>
+<h3>Live Demo:</h3>
 
-It is hard to continue development and support for this free plugin without contributions from users like you. If you enjoy using demon Image Annotation and find it useful, please consider making a donation. Your donation will help encourage and support the plugin's continued development and better user support. [Donate](https://www.paypal.com/my/cgi-bin/webscr?cmd=_flow&SESSION=18GfxUjB0LLu6Bubk1OcByQzupwiyqCrq5R-MGEyrsmYZ1_0O5uxt2mbXRe&dispatch=5885d80a13c0db1f8e263663d3faee8d66f31424b43e9a70645c907a6cbd8fb4 "Donate")
+[http://www.superwhite.cc/demon/image-annotation-plugin](http://www.superwhite.cc/demon/image-annotation-plugin "http://www.superwhite.cc/demon/image-annotation-plugin")
+
+<h3>Needs Your Support:</h3>
+
+It is hard to continue development and support for this free plugin without contributions from users like you. If you enjoy using demon Image Annotation and find it useful, please consider making a donation. Your donation will help encourage and support the plugin's continued development and better user support. [Donate](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=HBKHFYS86E99Q&lc=MY&item_name=demon%20Image%20Annotation%20Plugin&item_number=dia_plugin&currency_code=MYR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted "Donate")
 
 <h3>Some features:</h3>
-
 
 * Option to approve, edit and remove image notes in admin page.
 * Preview image annotation in admin page.
@@ -138,6 +141,9 @@ To add thumbnails to your comments list manually, just add the php code below in
 5. Image annotation editing.
 
 == Changelog ==
+= 3.1   =
+* Fixed Annotation jQuery.
+
 = 3.0   =
 * Fixed HTTPS issue
 * Fixed wordpress comment synced with image note data.
