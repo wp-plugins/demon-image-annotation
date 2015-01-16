@@ -21,7 +21,11 @@
 			var source = $(this).attr('src');
 			idname = idname == undefined ? '' : idname;
 			
-			if($(this).attr('exclude') == undefined || idname.substring(4,idname.length) != 'exclude') {
+			var exclude = false;
+			if($(this).attr('exclude') != undefined || idname.substring(4,idname.length) == 'exclude'){
+				exclude = true;
+			}
+			if(!exclude){
 				var editable=false;
 				//check if image annotation addable attribute exist
 				var addablecon = $(this).attr("addable");
