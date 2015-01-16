@@ -347,7 +347,7 @@ function dia_plugin_row_meta( $links, $file ) {
 			$links,
 			array( sprintf( '<a href="admin.php?page=%s">Settings</a>', 'dia_settings'),
 				 sprintf( '<a href="admin.php?page=%s">Image Notes</a>', 'dia_image_notes'),
-				 sprintf( '<a href="http://goo.gl/Ead1GA">Donate</a>'))
+				 sprintf( '<a href="http://goo.gl/cMgHz4">Donate</a>'))
 		);
 	}
 	return $links;
