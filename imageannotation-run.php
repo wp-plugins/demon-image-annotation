@@ -24,7 +24,7 @@ function dia_getSave() {
 		$_GET["left"],
 		$_GET["width"],
 		$_GET["height"],
-		$_GET["text"],//dia_html2txt($_GET["text"]),
+		$_GET["text"],
 		$_GET["id"],
 		$_GET["noteID"],
 		$_GET["author"],
@@ -49,12 +49,12 @@ function dia_getSave() {
 		
 		//update image note
 		$wpdb->query("UPDATE ".$table_name."
-		SET note_top = '".addslashes($data[0])."',
-			note_left = '".addslashes($data[1])."',
-			note_width = '".addslashes($data[2])."',
-			note_height = '".addslashes($data[3])."',
-			note_text = '".addslashes($data[4])."',
-			note_text_ID = '".addslashes("id_".md5($data[4]))."' WHERE note_ID = ".addslashes($data[6]));
+		SET note_top = '".$data[0]."',
+			note_left = '".$data[1]."',
+			note_width = '".$data[2]."',
+			note_height = '".$data[3]."',
+			note_text = '".$data[4]."',
+			note_text_ID = '"."id_".md5($data[4])."' WHERE note_ID = ".$data[6]);
 		
 	} else {
 		//if image note is new
@@ -117,19 +117,19 @@ function dia_getSave() {
 											`note_date`
 										)
 										VALUES (
-										'".addslashes($imgID)."',
-										'".addslashes($comment_id)."',
-										'".addslashes($postID)."',
-										'".addslashes($comment_author)."',
-										'".addslashes($comment_author_email)."',
-										".addslashes($data[0]).",
-										".addslashes($data[1]).",
-										".addslashes($data[2]).",
-										".addslashes($data[3]).",
-										'".addslashes($data[4])."',
-										'".addslashes("id_".md5($data[4]))."',
+										'".$imgID."',
+										'".$comment_id."',
+										'".$postID."',
+										'".$comment_author."',
+										'".$comment_author_email."',
+										".$data[0].",
+										".$data[1].",
+										".$data[2].",
+										".$data[3].",
+										'".$data[4]."',
+										'"."id_".md5($data[4])."',
 										1,
-										'".addslashes($autoapprove)."',
+										'".$autoapprove."',
 										now()
 										)");
 	}	

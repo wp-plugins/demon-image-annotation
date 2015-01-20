@@ -565,17 +565,17 @@ If you enjoy using demon Image Annotation and find it useful, please consider ma
 
 		//admin settings
 		if($_POST['dia_hidden'] == 'Y') {
-			//show on home page
-			/*$dia_homepage = $_POST['dia_homepage'];
-			update_option('demon_image_annotation_homepage', $dia_homepage);
+			/*//show on home page
+			$dia_homedisplay = $_POST['dia_homedisplay'];
+			update_option('demon_image_annotation_homedisplay', $dia_homedisplay);
 			
-			//show on archive page
-			$dia_archive = $_POST['dia_archive'];
-			update_option('demon_image_annotation_archive', $dia_archive);*/
+			//show on post page
+			$dia_postdisplay = $_POST['dia_postdisplay'];
+			update_option('demon_image_annotation_postdisplay', $dia_postdisplay);
 			
-			//show on pages
-			$dia_pages = $_POST['dia_pages'];
-			update_option('demon_image_annotation_pages', $dia_pages);
+			//show on post page
+			$dia_pagedisplay = $_POST['dia_pagedisplay'];
+			update_option('demon_image_annotation_pagedisplay', $dia_pagedisplay);*/
 			
 			//post content wrapper
 			$dia_csscontainer = $_POST['dia_csscontainer'];
@@ -588,6 +588,10 @@ If you enjoy using demon Image Annotation and find it useful, please consider ma
 			//admin only
 			$dia_admin = $_POST['dia_admin'];
 			update_option('demon_image_annotation_admin', $dia_admin);
+			
+			//auto resize image
+			$dia_autoresize = $_POST['dia_autoresize'];
+			update_option('demon_image_annotation_autoresize', $dia_autoresize);
 			
 			//comments thumbnail
 			$dia_thumbnail = $_POST['dia_thumbnail'];
@@ -612,6 +616,10 @@ If you enjoy using demon Image Annotation and find it useful, please consider ma
 			//auto insert image id attribute
 			$dia_autoimageid = $_POST['dia_autoimageid'];
 			update_option('demon_image_annotation_autoimageid', $dia_autoimageid);
+			
+			//numbering
+			$dia_numbering = $_POST['dia_numbering'];
+			update_option('demon_image_annotation_numbering', $dia_numbering);
 			
 			//mouse over desc
 			$dia_mouseoverdesc = $_POST['dia_mouseoverdesc'];
@@ -641,16 +649,16 @@ If you enjoy using demon Image Annotation and find it useful, please consider ma
 			$dia_csscontainer = get_option('demon_image_annotation_postcontainer');
 			$dia_display = get_option('demon_image_annotation_display');
 			$dia_admin = get_option('demon_image_annotation_admin');
+			$dia_autoresize = get_option('demon_image_annotation_autoresize');
 			$dia_thumbnail = get_option('demon_image_annotation_thumbnail');
 			$dia_gravatar = get_option('demon_image_annotation_gravatar');
 			$dia_gravatardefault = get_option('demon_image_annotation_gravatar_deafult');
 			$dia_everypage = get_option('demon_image_annotation_everypage');
 			$dia_autoapprove = get_option('demon_image_annotation_autoapprove');
 			$dia_comments = get_option('demon_image_annotation_comments');
-			//$dia_homepage = get_option('demon_image_annotation_homepage');
-			//$dia_archive = get_option('demon_image_annotation_archive');
-			$dia_pages = get_option('demon_image_annotation_pages');
+			
 			$dia_autoimageid = get_option('demon_image_annotation_autoimageid');
+			$dia_numbering = get_option('demon_image_annotation_numbering');
 			$dia_mouseoverdesc = get_option('demon_image_annotation_mouseoverdesc');
 			$dia_linkoption = get_option('demon_image_annotation_linkoption');
 			$dia_linkdesc = get_option('demon_image_annotation_linkdesc');
@@ -686,10 +694,10 @@ If you enjoy using demon Image Annotation and find it useful, please consider ma
                     <label><?php _e("Post Content Wrapper : " ); ?></label>
                 </th>
                 <td>
-                    <input type="text" name="dia_csscontainer" value="<?php echo ($dia_csscontainer == '') ? '#entrybody' : $dia_csscontainer; ?>" size="20"><em><?php _e(" eg: #entrybody, .entrybody" ); ?></em><br />
-                    <span style="color:#C00">#IMPORTANT</span><br />
+                    <input type="text" name="dia_csscontainer" value="<?php echo ($dia_csscontainer == '') ? '' : $dia_csscontainer; ?>" size="20"><em><?php _e(" eg: #entrybody, .entrybody" ); ?></em><br />
                     <p>The image annotation plugins initiate by targeting post content wrapper,<br />
-                    put in the div wrapper id or class where your post content appear.</p><br />
+                    put in the div wrapper id or class where your post content appear,<br />
+                    leave it empty if you don't know what to do.</p><br />
                     <strong>Example (.entrybody)</strong><br />
                     <code>
                     &lt;div class="entrybody&gt;<br />
@@ -740,28 +748,48 @@ If you enjoy using demon Image Annotation and find it useful, please consider ma
             
             <tr>
                 <th>
-                    <label><?php _e("Image Note Gravatar : " ); ?></label>
+                    <label><?php _e("Auto Resize Images : " ); ?></label>
                 </th>
               <td>
                   <?php 
-                    $sndisplaymode = array( 0 => __( 'Enable' ), 1 => __( 'Disable' ) );	
+                    $sndisplaymode = array( 0 => __( 'Enable' ), 1 => __( 'Disable' ) );
                     foreach ( $sndisplaymode as $key => $value) {
-                        $selected = $dia_gravatar == $key ? 'checked="checked"' : '';
-                        echo "<label><input type='radio' name='dia_gravatar' value='" . esc_attr($key) . "' $selected/> $value</label>";
+                        $selected = $dia_autoresize == $key ? 'checked="checked"' : '';
+                        echo "<label><input type='radio' name='dia_autoresize' value='" . esc_attr($key) . "' $selected/> $value</label>";
                     } ?>
                     <br />
-                    <p>Enable to show gravatar in image note.</p><br />
-                    <em>Default gravatar : </em><br/><?php echo get_bloginfo('template_url'); ?><input type="text" name="dia_gravatardefault" value="<?php echo $dia_gravatardefault ?>" size="20"><?php _e(" eg: /images/default.png" ); ?><br />
+                    <p>Enable to auto resizing images to fit content max width.</p>
               </td>
             </tr>
+            
+            <tr>
+                <th>
+                    <label><?php _e("Numbering : " ); ?></label>
+                </th>
+              <td>
+                    <?php 
+                    $sndisplaymode = array( 0 => __( 'Enable' ), 1 => __( 'Disable' ) );
+                    foreach ( $sndisplaymode as $key => $value) {
+                        $selected = $dia_numbering == $key ? 'checked="checked"' : '';
+                        echo "<label><input type='radio' name='dia_numbering' value='" . esc_attr($key) . "' $selected/> $value</label>";
+                    } ?>
+                    <br />
+                    <p>Enable to show numbering every image annotation.</p><br/>
+                    <strong>Example</strong><br />
+                    <code><strong>03</strong> | Mouseover to load notes | Image Note by Flickr</code>
+              </td>
+            </tr>
+            
             <tr>
                 <th>
                     <label><?php _e("Mouseover Description : " ); ?></label>
                 </th>
               <td>
-                    <input type="text" name="dia_mouseoverdesc" size="30" value="<?php echo ($dia_mouseoverdesc == '') ? '' : $dia_mouseoverdesc; ?>" size="20"><em><?php _e(" eg: Mouseover to load notes." ); ?></em>
+                    <input type="text" name="dia_mouseoverdesc" size="30" value="<?php echo ($dia_mouseoverdesc == '') ? '' : $dia_mouseoverdesc; ?>" size="20"><em><?php _e(" eg: Mouseover to load notes" ); ?></em>
                     <br />
-                    <p>Show description on top of every image annotation, leave it empty to hide.</p>
+                    <p>Show description on top of every image annotation, leave it empty to hide.</p><br />
+                    <strong>Example</strong><br />
+                    <code>03 | <strong>Mouseover to load notes</strong> | Image Note by Flickr</code>
               </td>
             </tr>
             <tr>
@@ -776,13 +804,13 @@ If you enjoy using demon Image Annotation and find it useful, please consider ma
                         echo "<label><input type='radio' name='dia_linkoption' value='" . esc_attr($key) . "' $selected/> $value</label>";
                     } ?>
                     <br />
-                    <p>Enable to show image hyberlink behind load note instruction.</p><br />
+                    <p>Enable to show image hyberlink if image is embed as a link, it will show behind load note instruction.</p><br />
                     
                     <input type="text" name="dia_linkdesc" size="30" value="<?php echo ($dia_linkdesc == '') ? '' : $dia_linkdesc; ?>" size="20"><em><?php _e(" eg: Source, Link, Flickr" ); ?></em>
                     <br />
-                    <p>Image hyperlink name behind load note instruction, input %NONE% to show image link title attribute.</p><br/>
+                    <p>Image hyperlink text behind load note instruction, input %TITLE% to show image link title attribute.</p><br/>
                     <strong>Example</strong><br />
-                    <code>03 | Mouseover to load notes | Image Note by Flickr</code>
+                    <code>03 | Mouseover to load notes | <strong>Image Note by Flickr</strong></code>
               </td>
             </tr>
             <tr>
@@ -861,6 +889,22 @@ If you enjoy using demon Image Annotation and find it useful, please consider ma
                     <p>Maximum characters for image note input.</p>
               </td>
             </tr>
+            <tr>
+                <th>
+                    <label><?php _e("Image Note Gravatar : " ); ?></label>
+                </th>
+              <td>
+                  <?php 
+                    $sndisplaymode = array( 0 => __( 'Enable' ), 1 => __( 'Disable' ) );	
+                    foreach ( $sndisplaymode as $key => $value) {
+                        $selected = $dia_gravatar == $key ? 'checked="checked"' : '';
+                        echo "<label><input type='radio' name='dia_gravatar' value='" . esc_attr($key) . "' $selected/> $value</label>";
+                    } ?>
+                    <br />
+                    <p>Enable to show gravatar in image note.</p><br />
+                    <em>Default gravatar : </em><br/><?php echo get_bloginfo('template_url'); ?><input type="text" name="dia_gravatardefault" value="<?php echo $dia_gravatardefault ?>" size="20"><?php _e(" eg: /images/default.png" ); ?><br />
+              </td>
+            </tr>
         </table>
         <hr /> 
         <p class="submit">
@@ -878,7 +922,7 @@ If you enjoy using demon Image Annotation and find it useful, please consider ma
         <hr/>
     	<ol>
     		<li>
-            	<p>First enter div wrapper <strong>id</strong> or <strong>class</strong> in settings where your post content appear, or else the plugin can't find the wrapper to start.</p>
+            	<p>First enter div wrapper <strong>id</strong> or <strong>class</strong> in settings where your post content appear, or else the plugin can't find the wrapper to start. Leave it empty if you don't know what to do.</p>
                 <strong>Example (.entrybody)</strong><br />
                 <code>
                 &lt;div class="entrybody&gt;<br />

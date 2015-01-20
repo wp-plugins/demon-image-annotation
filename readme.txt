@@ -6,7 +6,7 @@ Author URI: http://www.superwhite.cc/
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 Requires at least: 2.5
 Tested up to: 4.1
-Stable tag: 3.1
+Stable tag: 3.2
 
 Allows you to add textual annotations to images by select a region of the image and then attach a textual description.
 
@@ -141,8 +141,17 @@ To add thumbnails to your comments list manually, just add the php code below in
 5. Image annotation editing.
 
 == Changelog ==
+= 3.2   =
+* Modifiend database column
+* Fixed backslash in image note
+* Remove auto generate ID and post ID in jQuery
+* Replace auto generate ID and post ID with filter function
+* Option to disable numbering
+* Option to auto resize image annotation to fit content max width
+* Image annotation able to show on home page
+
 = 3.1   =
-* Fixed Annotation jQuery.
+* Fixed Annotation jQuery
 
 = 3.0   =
 * Fixed HTTPS issue

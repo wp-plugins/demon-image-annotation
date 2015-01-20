@@ -1,13 +1,14 @@
 (function($) {
     $.fn.initAnnotate = function(options) {
-		var imgcount = 1
+		var imgcount = 1;
+		var postID = 0;
         var opts = $.extend({}, $.fn.initAnnotate.defaults, options);
+		pluginPath = opts.pluginPath;
 		container = opts.container;
 		adminOnly = opts.adminOnly;
 		pageOnly = opts.pageOnly;
-		pluginPath = opts.pluginPath;
-		autoImgID = opts.autoImgID;
-		postID = opts.postID;
+		autoResize = opts.autoResize;
+		numbering = opts.numbering;
 		removeImgTag = opts.removeImgTag;
 		mouseoverDesc = opts.mouseoverDesc;
 		maxLength = opts.maxLength;
@@ -17,7 +18,12 @@
 		previewOnly = opts.previewOnly;
 		
 		$(container + ' img').each(function(index) {
-			var idname = $(this).attr("id")
+			if(postID != $(this).attr("data-post-id")){
+				imgcount = 1;
+				postID = $(this).attr("data-post-id");
+				postID = postID == undefined ? '' : postID;
+			}
+			var idname = $(this).attr("id");
 			var source = $(this).attr('src');
 			idname = idname == undefined ? '' : idname;
 			
@@ -26,55 +32,43 @@
 				exclude = true;
 			}
 			if(!exclude){
-				var editable=false;
-				//check if image annotation addable attribute exist
-				var addablecon = $(this).attr("addable");
-				
-				//disable if image annotation addable for admin only
-				if(adminOnly==0){
-					//admin
-					addablecon = false;
-				}else{
-					//not admin
-					addablecon = addablecon == undefined ? true : addablecon;
-				}
-									
-				//disable addable button if not in single page
-				if(pageOnly==1||pageOnly==2){
-					//addablecon = false;
-				}
-				
-				//find image link if exist
-				var imagelink = $(this).parent("a").attr('href');
-				var imagetitle = $(this).parent("a").attr('title');
-				imagetitle = imagetitle == undefined ? '' : imagetitle
-				
-				var imgid = "";
-				if(autoImgID==0){
-					//auto insert image id attribute
-					imgid = $(this).getMD5(source);
-					imgid = "img-" + postID + "-" + imgid.substring(0,10);
-				}
-				
-				//replace if image id attribute exist
 				if(idname.substring(0,4) == "img-") {
-					imgid = idname;
-				}
-				if(imgid.substring(0,4) == "img-") {
+					var editable=false;
+					//check if image annotation addable attribute exist
+					var addablecon = $(this).attr("addable");
+					
+					//disable if image annotation addable for admin only
+					if(adminOnly==0){
+						//admin
+						addablecon = false;
+					}else{
+						//not admin
+						addablecon = addablecon == undefined ? true : addablecon;
+					}
+										
+					//disable addable button if not in single page
+					if(pageOnly==1||pageOnly==2){
+						//addablecon = false;
+					}
+					
+					//find image link if exist
+					var imagelink = $(this).parent("a").attr('href');
+					var imagetitle = $(this).parent("a").attr('title');
+					imagetitle = imagetitle == undefined ? '' : imagetitle;
+					
 					//deactive the link if exist
 					$(this).parent("a").removeAttr("href");
 					if(removeImgTag==0) {
 						//remove the link title attribute
 						$(this).parent("a").removeAttr("title");
 					}
-					$(this).attr("id", imgid);
-					$(this).wrap($('<div id=' + imgid.substring(4,imgid.length) + ' class="dia-holder" ></div>'));
-					var imagenotetag = mouseoverDesc != '' ? ' | '+mouseoverDesc : mouseoverDesc;
+					$(this).wrap($('<div id=' + idname.substring(4,idname.length) + ' class="dia-holder" ></div>'));
+					var imagenotetag = mouseoverDesc != '' ? mouseoverDesc : mouseoverDesc;
 					
 					var divider;
 					if(mouseoverDesc != '') {
 						if(imgLinkOption==0){
-							imgLinkDesc = imgLinkDesc == '%NONE%' ? imagetitle : imgLinkDesc;
+							imgLinkDesc = imgLinkDesc == '%TITLE%' ? imagetitle : imgLinkDesc;
 							divider = imagelink != undefined ? ' | ' : '';
 						}else{
 							imgLinkDesc=''
@@ -82,7 +76,7 @@
 						}
 					} else {
 						if(imgLinkOption==0){
-							imgLinkDesc = imgLinkDesc == '%NONE%' ? imagetitle : imgLinkDesc;
+							imgLinkDesc = imgLinkDesc == '%TITLE%' ? imagetitle : imgLinkDesc;
 							divider = imgLinkDesc != '' ? ' | ' : '';
 						}else{
 							imgLinkDesc=''
@@ -101,14 +95,21 @@
 					
 					var imagelinktag = imagelink != undefined ? '<a href="' + imagelink + '" target="blank">' + imgLinkDesc + '</a>' : '';
 					var newimgcount = imgcount < 10 ? "0" + imgcount : imgcount;
+					if(mouseoverDesc!=''){
+						newimgcount+=' | ';
+					}
+					if(numbering == 1){
+						newimgcount='';
+					}
 					$(this).before('<div class="dia-desc-holder"><span class="dia-desc">'+ newimgcount + imagenotetag + divider + imagelinktag + '</span></div>');
-					imgcount++
-								
+					imgcount++;
+					
 					$(this).mouseover(function() {
 						$(this).annotateImage({
-							getPostID: postID,
-							getImgID: imgid,
 							pluginPath: pluginPath,
+							getPostID: postID,
+							getImgID: idname,
+							autoResize: autoResize,
 							editable: editable,
 							addable: addablecon,
 							maxLength: maxLength,
@@ -149,6 +150,5 @@
 			}
 		});
 		return idreturn;
-	}
-	
+	}	
 })(jQuery);

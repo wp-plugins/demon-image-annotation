@@ -4,7 +4,7 @@ Plugin Name: Demon Image Annotation
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 Description: Allows you to add textual annotations to images by select a region of the image and then attach a textual description, the concept of annotating images with user comments.
 Author: Demon
-Version: 3.1
+Version: 3.2
 Author URI: http://www.superwhite.cc
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 */
@@ -43,36 +43,37 @@ function dia_init_js() {
 			return false;
 	}
 	
+	$page = 0;
 	if (is_single()) {
 		$page = 0;
 	} else if(is_page()){
-		if( (get_option('demon_image_annotation_pages') == '1') ) {
+		/*if( (get_option('demon_image_annotation_pages') == '1') ) {
 			$page = 2;
 		} else {
 			$page = 1;
-		}	
+		}*/	
 	}
 	
 	$initNote = false;
-	
-	if(get_option('demon_image_annotation_comments') == '0' && comments_open()){
-		$initNote = true;
-	}else{
-		$initNote = true;	
+	if(get_option('demon_image_annotation_display') == '0'){
+		if(get_option('demon_image_annotation_comments') == '0' && comments_open()){
+			$initNote = true;
+		}else{
+			$initNote = true;	
+		}
 	}
 	
 	if($initNote){
 	?>
     <script language="javascript">
-	<?php if( (get_option('demon_image_annotation_display') == '0' && $page != 1) ) { ?>
 	jQuery(document).ready(function(){
 		jQuery(this).initAnnotate({
-				container:'<?php echo get_option('demon_image_annotation_postcontainer'); ?>',
-				adminOnly:<?php echo get_option('demon_image_annotation_admin'); ?>,
-				pageOnly:<?php echo $page; ?>,
 				pluginPath:'<?php echo plugins_url( 'imageannotation-run' , __FILE__ ); ?>',
-				autoImgID:<?php echo get_option('demon_image_annotation_autoimageid'); ?>,
-				postID:<?php global $wp_query; $thePostID = $wp_query->post->ID; echo $thePostID; ?>,
+				container:'<?php echo get_option('demon_image_annotation_postcontainer'); ?>',
+				pageOnly:<?php echo $page; ?>,
+				adminOnly:<?php echo get_option('demon_image_annotation_admin'); ?>,
+				autoResize:'<?php echo get_option('demon_image_annotation_autoresize'); ?>',
+				numbering:'<?php echo get_option('demon_image_annotation_numbering'); ?>',
 				removeImgTag:<?php echo get_option('demon_image_annotation_clickable_text'); ?>,
 				mouseoverDesc:'<?php echo get_option('demon_image_annotation_mouseoverdesc'); ?>',
 				maxLength:<?php echo get_option('demon_image_annotation_maxlength'); ?>,
@@ -81,7 +82,6 @@ function dia_init_js() {
 				userLevel:<?php get_currentuserinfo(); global $user_level; echo $user_level;?>
 		});
 	});
-	<?php } ?>
 	</script>
     <?php
 	}
@@ -100,7 +100,6 @@ function dia_thumbnail() {
 		
 		if($imgIDNow != "") {
 			$str = substr($imgIDNow, 4, strlen($imgIDNow));
-			
 			if (is_admin()){
 				echo "<div id=\"comment-".$str."\"><a href='admin.php?page=dia_image_notes&action=edit&note=".$imgID."'>Edit Image Note > #".$imgIDNow."</a></div>";	
 			}else{
@@ -132,13 +131,15 @@ function dia_admin_init(){
 	$dia_display = dia_default('demon_image_annotation_display');
 	$dia_admin = dia_default('demon_image_annotation_admin');
 	$dia_gravatar = dia_default('demon_image_annotation_gravatar');
+	$dia_resize = dia_default('demon_image_annotation_autoresize');
 	$dia_autoimageid = dia_default('demon_image_annotation_autoimageid');
+	$dia_numbering = dia_default('demon_image_annotation_numbering');
 	$dia_mouseoverdesc = dia_default('demon_image_annotation_mouseoverdesc');
 	$dia_linkoption = dia_default('demon_image_annotation_linkoption');
 	$dia_linkdesc = dia_default('demon_image_annotation_linkdesc');
 	$dia_clickable_text = dia_default('demon_image_annotation_clickable_text');
 	$dia_maxlength = dia_default('demon_image_annotation_maxlength');
-	$dia_comments = dia_default('demon_image_annotation_autoapprove');
+	$dia_autoapprove = dia_default('demon_image_annotation_autoapprove');
 	$dia_comments = dia_default('demon_image_annotation_comments');
 	$dia_thumbnail = dia_default('demon_image_annotation_thumbnail');
 	
@@ -150,6 +151,9 @@ function dia_default($con){
 	$dia_option = get_option($con);
 	if($dia_option==''){
 		switch ($con) {
+			case 'demon_image_annotation_autoresize':
+				$dia_option='1';
+				break;
 			case 'demon_image_annotation_display':
 				$dia_option='0';
 				break;
@@ -162,6 +166,9 @@ function dia_default($con){
 			case 'demon_image_annotation_autoimageid':
 				$dia_option='0';
 				break;
+			case 'demon_image_annotation_numbering':
+				$dia_option='0';
+				break;
 			case 'demon_image_annotation_mouseoverdesc':
 				$dia_option='Mouseover to load notes';
 				break;
@@ -169,7 +176,7 @@ function dia_default($con){
 				$dia_option='0';
 				break;
 			case 'demon_image_annotation_linkdesc':
-				$dia_option='Link';
+				$dia_option='%TITLE%';
 				break;
 			case 'demon_image_annotation_clickable_text':
 				$dia_option='0';
@@ -208,18 +215,20 @@ function dia_admin_actions() {
 	}
 }
 
-function dia_admin_head() {
+function dia_admin_head() {	
 	echo '<link rel="stylesheet" type="text/css" href="' .plugins_url('css/admin.css', __FILE__). '">';
 	
-	if (is_admin()){
+	$page = isset($_REQUEST['page']) ? trim($_REQUEST['page']) : '';
+	$action = isset($_REQUEST['action']) ? trim($_REQUEST['action']) : '';
+	if (is_admin() && $page=='dia_image_notes' && $action == 'edit'){
 	dia_jquery();
 	?>
 	<script language="javascript">
 	jQuery(document).ready(function(){
 		jQuery(this).initAnnotate({
 				container:'#dia-admin-holder',
+				numbering:1,
 				pluginPath:'<?php echo plugins_url( 'imageannotation-run' , __FILE__ ); ?>',
-				autoImgID:1,
 				mouseoverDesc:'Mouseover to edit note',
 				maxLength:<?php echo get_option('demon_image_annotation_maxlength'); ?>,
 				imgLinkOption:1,
@@ -233,12 +242,14 @@ function dia_admin_head() {
 }
 
 function dia_createtable() {
+	$dia_curVersion = 3.2;
+	
 	global $wpdb;
 	$table_name = $wpdb->prefix . "demon_imagenote";
 	$dia_pluginver = get_option('demon_image_annotation_pluginver');
 	
 	//rename old table
-	if($dia_pluginver=='' || $dia_pluginver <3){
+	if($dia_pluginver=='' || $dia_pluginver <$dia_curVersion){
 		if($wpdb->get_var("show tables like '".$table_name."'") != $table_name) {
 			$sql = "Rename table `demon_imagenote` to `".$table_name."`;";
 			$wpdb->query($sql);
@@ -266,13 +277,16 @@ function dia_createtable() {
 	  `note_approved` VARCHAR(30) NOT NULL,
 	  `note_date` datetime NOT NULL,
 	  PRIMARY KEY (`note_ID`)
-	) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=21 ;";
+	) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci AUTO_INCREMENT=21 ;";
 
 	  require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 	  dbDelta($sql);
 	  
    } else {
-	  if($dia_pluginver=='' || $dia_pluginver <3){
+	  if($dia_pluginver=='' || $dia_pluginver <=$dia_curVersion){
+		  $sql = "ALTER TABLE `".$table_name."` CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+		  $wpdb->query($sql);
+		  
 		  $sql = "ALTER TABLE `".$table_name."` modify `note_img_ID` VARCHAR(30);";
 		  $wpdb->query($sql);
 		  
@@ -283,13 +297,14 @@ function dia_createtable() {
 		  modify `note_left` bigint(20),
 		  modify `note_width` bigint(20),
 		  modify `note_height` bigint(20),
+		  modify `note_text` text,
 		  modify `note_approved` VARCHAR(30);";
 		  $wpdb->query($sql);
 		  
 		  $sql = "ALTER TABLE `".$table_name."` ADD `note_post_ID` bigint(20) NOT NULL AFTER `note_comment_ID`;";
 		  $wpdb->query($sql);
 		  
-		  $dia_pluginver = 3;
+		  $dia_pluginver = $dia_curVersion;
 		  update_option('demon_image_annotation_pluginver', $dia_pluginver);
 	  }
    }
@@ -329,9 +344,46 @@ if (is_admin())
 		add_filter('comment_text', 'dia_thumbnail_inserter', 10, 4);
 	}
 }
-
 add_action('admin_head', 'dia_admin_head');
 add_action('admin_menu', 'dia_admin_actions');
+
+
+//*************** auto Generate Img ID ***************
+function dia_filterImg( $content ) {	
+	//$matches will be an array with all images
+	preg_match_all("/<img[^>]+\>/i", $content, $matches);
+	//remove all images form content
+	//$content = preg_replace("/<img[^>]+\>/i", "", $content);
+	
+	//print_r($matches);
+	$img_arr = array();
+	
+	global $post;
+	foreach($matches[0] as $img) {
+		$postIDTag = 'data-post-id="'.$post->ID.'" ';
+		$imgIDTag = '';
+		
+		preg_match_all('/(id|src)=("[^"]*")/i', $img, $img_arr);
+		
+		//print_r($img_arr);
+		if($img_arr[1][0] == 'id' && $img_arr[2][0] !=''){
+			//'ID exist';
+		}else{
+			if(get_option('demon_image_annotation_autoimageid') == '0'){
+				if($img_arr[1][0] == 'src' && $img_arr[2][0] !=''){
+					$imgsrc = substr($img_arr[2][0],1,-1);
+					$imgID=md5($imgsrc);
+					$imgIDTag='id="img-'.$post->ID.'-'.substr($imgID,0,10).'" ';
+				}
+			}
+		}
+		$newimg = str_replace('img ', 'img '.$imgIDTag.$postIDTag, $img);
+		$content = str_replace($img, $newimg, $content);
+	}
+	return $content;
+}
+
+add_filter( 'the_content', 'dia_filterImg' );
 
 //*************** Plugin function ***************
 function dia_plugin_action($links) { 
