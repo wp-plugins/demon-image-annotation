@@ -7,7 +7,7 @@ if( (get_option('demon_image_annotation_comments') == '0') ) {
 	//Moderate
 	$query = "SELECT ".$table_note.".note_ID, ".$table_note.".note_approved, ".$table_comment.".comment_approved
 			FROM ".$table_note.", ".$table_comment."
-			WHERE ".$table_note.".note_approved != ".$table_comment.".comment_approved
+			WHERE ".$table_note.".note_approved != ".$table_comment.".comment_approved COLLATE utf8_unicode_ci
 			AND ".$table_note.".note_comment_ID = ".$table_comment.".comment_ID";
 			
 	$result = $wpdb->get_results($query);

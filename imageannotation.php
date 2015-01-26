@@ -4,7 +4,7 @@ Plugin Name: Demon Image Annotation
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 Description: Allows you to add textual annotations to images by select a region of the image and then attach a textual description, the concept of annotating images with user comments.
 Author: Demon
-Version: 3.2
+Version: 3.3
 Author URI: http://www.superwhite.cc
 Plugin URI: http://www.superwhite.cc/demon/image-annotation-plugin
 */
@@ -203,15 +203,34 @@ function dia_admin() {
 	include('imageannotation-admin.php');
 }
 
-function dia_admin_actions() {
+function dia_admin_menu() {
+	$imgtitle = 'Image Notes';
+	
 	//add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, $position );
-	add_menu_page(__('Image Annotation','dia-menu'), __('Image Annotation','dia-menu'), 1, 'dia_image_notes', 'dia_admin', plugins_url('icon.png',__FILE__));
+	add_menu_page(__($imgtitle,'dia-menu'), __($imgtitle,'dia-menu'), 1, 'dia_image_notes', 'dia_admin', plugins_url('icon.png',__FILE__));
 	
 	//add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );
 	if ( current_user_can('manage_options') ) {
-		add_submenu_page('dia_image_notes', __('Image Notes','dia-menu'), __('Image Notes','dia-menu'), 1, 'dia_image_notes');
+		add_submenu_page('dia_image_notes', __($imgtitle,'dia-menu'), __('Image Notes','dia-menu'), 1, 'dia_image_notes');
 		add_submenu_page('dia_image_notes', __('Settings','dia-menu'), __('Settings','dia-menu'), 'manage_options', 'dia_settings', 'dia_admin');
 		add_submenu_page('dia_image_notes', __('Usage','dia-menu'), __('Usage','dia-menu'), 'manage_options', 'dia_usage', 'dia_admin');
+		
+		global $wpdb;
+		$table_name = $wpdb->prefix . "demon_imagenote";
+		$notesCount = 0;
+		
+		if(get_option('demon_image_annotation_comments') == '0'){
+			$notesCount = $wpdb->get_var("SELECT COUNT(*) FROM ".$table_name." WHERE note_approved = 0 AND note_comment_ID != 0");
+		}else{
+			$notesCount = $wpdb->get_var("SELECT COUNT(*) FROM ".$table_name." WHERE note_approved = 0 AND note_comment_ID = 0");
+		}
+		
+		global $menu;		 
+		foreach($menu as $key => $value){
+			if ($menu[$key][0] == $imgtitle) {
+				$menu[$key][0] .= sprintf("<span class='update-plugins count-%s'><span class='plugin-count'>%s</span></span>", $notesCount, $notesCount);
+			}
+		}
 	}
 }
 
@@ -242,7 +261,7 @@ function dia_admin_head() {
 }
 
 function dia_createtable() {
-	$dia_curVersion = 3.2;
+	$dia_curVersion = 3.3;
 	
 	global $wpdb;
 	$table_name = $wpdb->prefix . "demon_imagenote";
@@ -274,7 +293,7 @@ function dia_createtable() {
 	  `note_text` text NOT NULL,
 	  `note_text_ID` varchar(100) NOT NULL,
 	  `note_editable` tinyint(1) NOT NULL,
-	  `note_approved` VARCHAR(30) NOT NULL,
+	  `note_approved` VARCHAR(20) NOT NULL,
 	  `note_date` datetime NOT NULL,
 	  PRIMARY KEY (`note_ID`)
 	) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci AUTO_INCREMENT=21 ;";
@@ -298,7 +317,7 @@ function dia_createtable() {
 		  modify `note_width` bigint(20),
 		  modify `note_height` bigint(20),
 		  modify `note_text` text,
-		  modify `note_approved` VARCHAR(30);";
+		  modify `note_approved` VARCHAR(20);";
 		  $wpdb->query($sql);
 		  
 		  $sql = "ALTER TABLE `".$table_name."` ADD `note_post_ID` bigint(20) NOT NULL AFTER `note_comment_ID`;";
@@ -345,7 +364,32 @@ if (is_admin())
 	}
 }
 add_action('admin_head', 'dia_admin_head');
-add_action('admin_menu', 'dia_admin_actions');
+add_action('admin_menu', 'dia_admin_menu');
+add_action('admin_bar_menu', 'dia_admin_bar', 70);
+
+function dia_admin_bar($admin_bar) {
+	if ( current_user_can('manage_options') ) {
+		
+		global $wpdb;
+		$table_name = $wpdb->prefix . "demon_imagenote";
+		$notesCount = 0;
+		
+		if(get_option('demon_image_annotation_comments') == '0'){
+			$notesCount = $wpdb->get_var("SELECT COUNT(*) FROM ".$table_name." WHERE note_approved = 0 AND note_comment_ID != 0");
+		}else{
+			$notesCount = $wpdb->get_var("SELECT COUNT(*) FROM ".$table_name." WHERE note_approved = 0 AND note_comment_ID = 0");
+		}
+		
+		$args = array(
+			'id' => 'dia',
+			'title' => '<span class="ab-icon"><img src='.plugins_url('icon.png',__FILE__).' /></span><span class="ab-label count-'.$notesCount.'">'.$notesCount.'</span>',
+			'href' => sprintf( 'admin.php?page=%s', 'dia_image_notes'),
+			'meta' => array(
+			)
+		);	
+		$admin_bar->add_node($args);
+	}
+}
 
 
 //*************** auto Generate Img ID ***************
